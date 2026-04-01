@@ -136,16 +136,14 @@ class PetDetailsPage extends StatelessWidget {
                       width: double.infinity,
                       height: 50,
                       child: ElevatedButton.icon(
-                        onPressed: () {
-                          print('Botão de contato clicado!');
-                        },
+                        onPressed: () {},
                         icon: const Icon(Icons.message),
                         label: const Text(
                           'Entrar em contato',
                           style: TextStyle(fontSize: 18),
                         ),
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.orange,
+                          backgroundColor: Colors.green,
                           foregroundColor: Colors.white,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12),

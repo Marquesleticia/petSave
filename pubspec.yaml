@@ -31,7 +31,8 @@ dependencies:
   flutter:
     sdk: flutter
   cached_network_image: ^3.3.0
-  shared_preferences: ^2.2.2
+  sqflite: ^2.3.0
+  path: ^1.8.3
   cupertino_icons: ^1.0.8
 
 dev_dependencies:

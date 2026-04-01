@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'dart:convert';
 import 'package:petSave/pages/pet_details_page.dart';
 import 'package:petSave/widgets/feed_card.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:petSave/services/database_helper.dart';
+import 'package:petSave/models/pet_card.dart';
 
 class PetSaveHomePage extends StatelessWidget {
   const PetSaveHomePage({super.key});
@@ -30,11 +30,11 @@ class PetSaveHomePage extends StatelessWidget {
                   icon: Icons.access_time,
                 ),
                 const SizedBox(height: 16),
-                const _UrgentPetsList(),
+                _UrgentPetsList(),
                 const SizedBox(height: 32),
                 const _SectionTitle(title: 'Feed Recente'),
                 const SizedBox(height: 16),
-                const _RecentFeedList(),
+                _RecentFeedList(),
               ],
             ),
           ),
@@ -137,63 +137,31 @@ class _HeroBanner extends StatelessWidget {
 }
 
 class _UrgentPetsList extends StatefulWidget {
-  const _UrgentPetsList({super.key});
+  const _UrgentPetsList();
 
   @override
   State<_UrgentPetsList> createState() => _UrgentPetsListState();
 }
 
 class _UrgentPetsListState extends State<_UrgentPetsList> {
-  // Lista vazia que vai receber os dados do celular
-  List<Map<String, dynamic>> urgentPets = [];
+  List<PetCard> urgentPets = [];
+  final _dbHelper = DatabaseHelper();
 
   @override
   void initState() {
     super.initState();
-    _loadPetsLocally(); // Quando a tela abrir, ele busca os dados salvos
+    _loadPetsFromDatabase();
   }
 
-  // ==========================================
-  // FUNÇÃO 1: Carrega os dados do celular
-  // ==========================================
-  Future<void> _loadPetsLocally() async {
-    final prefs = await SharedPreferences.getInstance();
-    final String? petsString = prefs.getString('saved_pets');
-    if (petsString != null) {
-      final List<dynamic> decodedList = jsonDecode(petsString);
-      setState(() {
-        urgentPets = List<Map<String, dynamic>>.from(decodedList);
-      });
-    } else {
-      setState(() {
-        urgentPets = [
-          {
-            'name': 'Rex (Exemplo)',
-            'local': 'Sua Cidade',
-            'imageUrl':
-                'https://cdn.pixabay.com/photo/2016/02/19/15/46/dog-1210559_1280.jpg',
-            'isResgatado': false,
-          },
-        ];
-      });
-    }
-  }
-
-  Future<void> addNewPet(Map<String, dynamic> newPet) async {
-    final prefs = await SharedPreferences.getInstance();
-
+  Future<void> _loadPetsFromDatabase() async {
+    final pets = await _dbHelper.getPetCardsByType(false); // false = PERDIDOS
     setState(() {
-      urgentPets.insert(0, newPet); // Adiciona o novo pet no começo da lista
+      urgentPets = pets;
     });
-
-    // Transforma a lista atualizada em texto (JSON) e salva no celular
-    final String encodedList = jsonEncode(urgentPets);
-    await prefs.setString('saved_pets', encodedList);
   }
 
   @override
   Widget build(BuildContext context) {
-    // Se a lista estiver vazia, mostra um aviso
     if (urgentPets.isEmpty) {
       return const SizedBox(
         height: 220,
@@ -211,10 +179,10 @@ class _UrgentPetsListState extends State<_UrgentPetsList> {
           return Padding(
             padding: const EdgeInsets.only(right: 16.0),
             child: _PetCard(
-              name: pet['name'],
-              local: pet['local'],
-              imageUrl: pet['imageUrl'],
-              isResgatado: pet['isResgatado'],
+              name: pet.name,
+              local: pet.local,
+              imageUrl: pet.imageUrl,
+              isResgatado: pet.isResgatado,
             ),
           );
         },
@@ -363,36 +331,55 @@ class _PetCard extends StatelessWidget {
   }
 }
 
-class _RecentFeedList extends StatelessWidget {
-  const _RecentFeedList({super.key});
+class _RecentFeedList extends StatefulWidget {
+  const _RecentFeedList();
+
+  @override
+  State<_RecentFeedList> createState() => _RecentFeedListState();
+}
+
+class _RecentFeedListState extends State<_RecentFeedList> {
+  List<PetCard> recentPets = [];
+  final _dbHelper = DatabaseHelper();
+
+  @override
+  void initState() {
+    super.initState();
+    _loadRecentPets();
+  }
+
+  Future<void> _loadRecentPets() async {
+    final pets = await _dbHelper.getAllPetCards();
+    setState(() {
+      // Pega os últimos 10 pets (ou menos se não houver)
+      recentPets = pets.length > 10 ? pets.sublist(0, 10) : pets;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
+    if (recentPets.isEmpty) {
+      return const Padding(
+        padding: EdgeInsets.all(16.0),
+        child: Center(child: Text('Nenhum pet no feed ainda.')),
+      );
+    }
+
     return Column(
-      children: const [
-        Padding(
-          padding: EdgeInsets.only(bottom: 12.0),
-          child: FeedCard(
-            name: 'Bolinha',
-            isResgatado: true,
-            local: 'Parque Ibirapuera',
-            timeAgo: '2 horas',
-            imageUrl:
-                'https://cdn.pixabay.com/photo/2016/12/13/05/15/puppy-1903313_1280.jpg',
-          ),
-        ),
-        Padding(
-          padding: EdgeInsets.only(bottom: 12.0),
-          child: FeedCard(
-            name: 'Mia',
-            isResgatado: false,
-            local: 'Rua das Flores',
-            timeAgo: '5 horas',
-            imageUrl:
-                'https://cdn.pixabay.com/photo/2014/11/30/14/11/cat-551554_1280.jpg',
-          ),
-        ),
-      ],
+      children: recentPets
+          .map(
+            (pet) => Padding(
+              padding: const EdgeInsets.only(bottom: 12.0),
+              child: FeedCard(
+                name: pet.name,
+                isResgatado: pet.isResgatado,
+                local: pet.local,
+                timeAgo: pet.timeAgo,
+                imageUrl: pet.imageUrl,
+              ),
+            ),
+          )
+          .toList(),
     );
   }
 }

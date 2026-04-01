@@ -36,7 +36,7 @@ class PetDetailsPage extends StatelessWidget {
           children: [
 
             Expanded(
-              flex: 1, // Ocupa 50% da tela
+              flex: 1,
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(16),
                 child: Image.network(
@@ -104,11 +104,11 @@ class PetDetailsPage extends StatelessWidget {
                     const SizedBox(height: 40),
                     
                     SizedBox(
-                      width: double.infinity, // Ocupa toda a largura disponível da coluna
+                      width: double.infinity, 
                       height: 50,
                       child: ElevatedButton.icon(
                         onPressed: () {
-                          // Aqui você pode colocar a ação de abrir o WhatsApp ou formulário
+                          
                           print('Botão de contato clicado!');
                         },
                         icon: const Icon(Icons.message),

@@ -17,9 +17,8 @@ class PetSaveApp extends StatelessWidget {
         primarySwatch: Colors.orange,
         scaffoldBackgroundColor: const Color(0xFFF8F9FA), 
       ),
-      // 2. Aqui nós chamamos a classe principal que está lá no seu home_page.dart
       home: const PetSaveHomePage(), 
-      debugShowCheckedModeBanner: false, // Remove a faixa de "DEBUG" da tela
+      debugShowCheckedModeBanner: false,
     );
   }
 }

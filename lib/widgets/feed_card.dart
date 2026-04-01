@@ -64,7 +64,6 @@ class FeedCard extends StatelessWidget {
                   );
                 },
                 
-                // Se o link da imagem estiver quebrado, mostra um ícone de patinha
                 errorBuilder: (context, error, stackTrace) {
                   return const Icon(Icons.pets, color: Colors.grey, size: 40);
                 },

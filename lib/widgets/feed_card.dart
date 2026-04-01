@@ -19,9 +19,8 @@ class FeedCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final tagText = isResgatado ? 'RESGATADO' : 'PERDIDO';
-    
-    final tagBackgroundColor = isResgatado ? Colors.purple : Colors.red; 
-        final tagTextColor = Colors.white; 
+    final tagBackgroundColor = isResgatado ? Colors.purple : Colors.red;
+    final tagTextColor = Colors.white; 
 
     final description = isResgatado
         ? 'Resgatei este pet em $local. Ele está seguro comigo, procuro o tutor!'
@@ -50,10 +49,8 @@ class FeedCard extends StatelessWidget {
               height: 80,
               color: Colors.grey[200],
               child: Image.network(
-                imageUrl, 
-                fit: BoxFit.cover, 
-                
-
+                imageUrl,
+                fit: BoxFit.cover,
                 loadingBuilder: (context, child, loadingProgress) {
                   if (loadingProgress == null) return child;
                   return const Center(
@@ -80,9 +77,13 @@ class FeedCard extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(
-                      name, 
-                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Colors.black87),
+                    Expanded(
+                      child: Text(
+                        name,
+                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Colors.black87),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
                     ),
 
                     Container(
@@ -113,8 +114,10 @@ class FeedCard extends StatelessWidget {
                 const SizedBox(height: 8),
 
                 Text(
-                  'Há $timeAgo', 
+                  'Há $timeAgo',
                   style: const TextStyle(fontSize: 12, color: Colors.black54),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
               ],
             ),

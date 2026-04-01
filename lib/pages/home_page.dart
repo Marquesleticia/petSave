@@ -36,9 +36,6 @@ class PetSaveHomePage extends StatelessWidget {
   }
 }
 
-// ==========================================
-// 1. CABEÇALHO (HEADER)
-// ==========================================
 class _HeaderMenu extends StatelessWidget {
   const _HeaderMenu();
 
@@ -47,7 +44,6 @@ class _HeaderMenu extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        // Logo
         Row(
           children: [
             const Icon(Icons.pets, color: Colors.orange, size: 28),
@@ -81,9 +77,6 @@ class _HeaderMenu extends StatelessWidget {
   }
 }
 
-// ==========================================
-// 2. BANNER PRINCIPAL
-// ==========================================
 class _HeroBanner extends StatelessWidget {
   const _HeroBanner();
 
@@ -132,9 +125,6 @@ class _HeroBanner extends StatelessWidget {
   }
 }
 
-// ==========================================
-// 3. LISTA DE URGENTES 
-// ==========================================
 class _UrgentPetsList extends StatelessWidget {
   const _UrgentPetsList();
 
@@ -219,9 +209,6 @@ class _PetCard extends StatelessWidget {
   }
 }
 
-// ==========================================
-// 4. FEED RECENTE (USANDO SEU NOVO WIDGET!)
-// ==========================================
 class _RecentFeedList extends StatelessWidget {
   const _RecentFeedList({Key? key}) : super(key: key);
 
@@ -256,9 +243,6 @@ class _RecentFeedList extends StatelessWidget {
   }
 }
 
-// ==========================================
-// WIDGET UTILITÁRIO (TÍTULOS)
-// ==========================================
 class _SectionTitle extends StatelessWidget {
   final String title;
   final IconData? icon;

@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 
 class FeedCard extends StatelessWidget {
   final String name;
-  final bool isResgatado; // Nossa nova variável para a regra de negócio
+  final bool isResgatado; 
   final String local;
   final String timeAgo;
-  final String imageUrl; // A URL da imagem que vem da internet
+  final String imageUrl; 
 
   const FeedCard({
     Key? key,
@@ -13,20 +13,16 @@ class FeedCard extends StatelessWidget {
     required this.isResgatado,
     required this.local,
     required this.timeAgo,
-    required this.imageUrl, // Tornamos o envio da imagem obrigatório
+    required this.imageUrl, 
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     final tagText = isResgatado ? 'RESGATADO' : 'PERDIDO';
     
-    // 2. A cor de fundo muda conforme o status (Roxo para resgatado, Vermelho para perdido)
     final tagBackgroundColor = isResgatado ? Colors.purple : Colors.red; 
-    
-    // 3. A cor do texto precisa ser branca para dar leitura (contraste) em cima de cores fortes
-    final tagTextColor = Colors.white; 
+        final tagTextColor = Colors.white; 
 
-    // A descrição muda dinamicamente de acordo com o booleano
     final description = isResgatado
         ? 'Resgatei este pet em $local. Ele está seguro comigo, procuro o tutor!'
         : 'Meu pet fugiu próximo a $local. Por favor, me ajude a encontrá-lo!';
@@ -47,20 +43,17 @@ class FeedCard extends StatelessWidget {
       child: Row(
         children: [
           
-          // ==========================================
-          // ESPAÇO DA IMAGEM
-          // ==========================================
           ClipRRect(
             borderRadius: BorderRadius.circular(12),
             child: Container(
               width: 80,
               height: 80,
-              color: Colors.grey[200], // Fundo neutro enquanto a imagem não aparece
+              color: Colors.grey[200],
               child: Image.network(
-                imageUrl, // Aqui o Flutter vai buscar a imagem na internet
-                fit: BoxFit.cover, // Garante que a foto preencha o quadrado sem amassar
+                imageUrl, 
+                fit: BoxFit.cover, 
                 
-                // Exibe uma rodinha de carregamento cinza enquanto baixa a imagem
+
                 loadingBuilder: (context, child, loadingProgress) {
                   if (loadingProgress == null) return child;
                   return const Center(
@@ -80,10 +73,7 @@ class FeedCard extends StatelessWidget {
           ),
           
           const SizedBox(width: 16),
-          
-          // ==========================================
-          // TEXTOS DO CARD
-          // ==========================================
+
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -95,7 +85,7 @@ class FeedCard extends StatelessWidget {
                       name, 
                       style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Colors.black87),
                     ),
-                    // Tag Visual (Perdido ou Resgatado)
+
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                       decoration: BoxDecoration(
@@ -114,7 +104,7 @@ class FeedCard extends StatelessWidget {
                   ],
                 ),
                 const SizedBox(height: 4),
-                // Descrição do caso
+
                 Text(
                   description,
                   style: const TextStyle(fontSize: 13, color: Colors.black87),
@@ -122,7 +112,7 @@ class FeedCard extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                 ),
                 const SizedBox(height: 8),
-                // Tempo
+
                 Text(
                   'Há $timeAgo', 
                   style: const TextStyle(fontSize: 12, color: Colors.black54),

@@ -5,7 +5,7 @@ import 'package:petSave/widgets/feed_card.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class PetSaveHomePage extends StatelessWidget {
-  const PetSaveHomePage({Key? key}) : super(key: key);
+  const PetSaveHomePage({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -14,7 +14,10 @@ class PetSaveHomePage extends StatelessWidget {
       body: SafeArea(
         child: SingleChildScrollView(
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
+            padding: const EdgeInsets.symmetric(
+              horizontal: 24.0,
+              vertical: 16.0,
+            ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -22,7 +25,10 @@ class PetSaveHomePage extends StatelessWidget {
                 const SizedBox(height: 32),
                 const _HeroBanner(),
                 const SizedBox(height: 32),
-                const _SectionTitle(title: 'Urgente: Perdidos', icon: Icons.access_time),
+                const _SectionTitle(
+                  title: 'Urgente: Perdidos',
+                  icon: Icons.access_time,
+                ),
                 const SizedBox(height: 16),
                 const _UrgentPetsList(),
                 const SizedBox(height: 32),
@@ -119,7 +125,10 @@ class _HeroBanner extends StatelessWidget {
               ),
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
             ),
-            child: const Text('Ver Animais Perdidos', style: TextStyle(fontWeight: FontWeight.bold)),
+            child: const Text(
+              'Ver Animais Perdidos',
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
           ),
         ],
       ),
@@ -128,7 +137,7 @@ class _HeroBanner extends StatelessWidget {
 }
 
 class _UrgentPetsList extends StatefulWidget {
-  const _UrgentPetsList({Key? key}) : super(key: key);
+  const _UrgentPetsList({super.key});
 
   @override
   State<_UrgentPetsList> createState() => _UrgentPetsListState();
@@ -161,9 +170,10 @@ class _UrgentPetsListState extends State<_UrgentPetsList> {
           {
             'name': 'Rex (Exemplo)',
             'local': 'Sua Cidade',
-            'imageUrl': 'https://cdn.pixabay.com/photo/2016/02/19/15/46/dog-1210559_1280.jpg',
+            'imageUrl':
+                'https://cdn.pixabay.com/photo/2016/02/19/15/46/dog-1210559_1280.jpg',
             'isResgatado': false,
-          }
+          },
         ];
       });
     }
@@ -171,7 +181,7 @@ class _UrgentPetsListState extends State<_UrgentPetsList> {
 
   Future<void> addNewPet(Map<String, dynamic> newPet) async {
     final prefs = await SharedPreferences.getInstance();
-    
+
     setState(() {
       urgentPets.insert(0, newPet); // Adiciona o novo pet no começo da lista
     });
@@ -195,7 +205,7 @@ class _UrgentPetsListState extends State<_UrgentPetsList> {
       height: 220,
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
-        itemCount: urgentPets.length, 
+        itemCount: urgentPets.length,
         itemBuilder: (context, index) {
           final pet = urgentPets[index];
           return Padding(
@@ -240,8 +250,8 @@ class _PetCard extends StatelessWidget {
               isResgatado: isResgatado,
               local: local,
               imageUrl: imageUrl,
-              description: isResgatado 
-                  ? 'Resgatei este pet próximo a $local. Ele está bem cuidado e aguardando o dono entrar em contato.' 
+              description: isResgatado
+                  ? 'Resgatei este pet próximo a $local. Ele está bem cuidado e aguardando o dono entrar em contato.'
                   : 'Meu pet $name fugiu próximo a $local. Ele é muito dócil, por favor, me ajude a encontrá-lo!',
             ),
           ),
@@ -253,7 +263,11 @@ class _PetCard extends StatelessWidget {
           color: Colors.white,
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
-            BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, 4)),
+            BoxShadow(
+              color: Colors.black.withOpacity(0.05),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
+            ),
           ],
         ),
         child: Column(
@@ -262,7 +276,9 @@ class _PetCard extends StatelessWidget {
             Stack(
               children: [
                 ClipRRect(
-                  borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+                  borderRadius: const BorderRadius.vertical(
+                    top: Radius.circular(16),
+                  ),
                   child: Image.network(
                     imageUrl,
                     height: 120,
@@ -279,14 +295,21 @@ class _PetCard extends StatelessWidget {
                   top: 8,
                   left: 8,
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 4,
+                    ),
                     decoration: BoxDecoration(
                       color: isResgatado ? Colors.purple : Colors.red,
-                      borderRadius: BorderRadius.circular(8)
+                      borderRadius: BorderRadius.circular(8),
                     ),
                     child: Text(
-                      isResgatado ? 'RESGATADO' : 'PERDIDO', 
-                      style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold)
+                      isResgatado ? 'RESGATADO' : 'PERDIDO',
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 10,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ),
                 ),
@@ -298,20 +321,32 @@ class _PetCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    name, 
-                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Colors.black87),
+                    name,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                      color: Colors.black87,
+                    ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
                   const SizedBox(height: 4),
                   Row(
                     children: [
-                      const Icon(Icons.location_on, size: 12, color: Colors.black54),
+                      const Icon(
+                        Icons.location_on,
+                        size: 12,
+                        color: Colors.black54,
+                      ),
                       const SizedBox(width: 4),
-                      Expanded( // Expanded aqui evita erro se o texto for muito grande
+                      Expanded(
+                        // Expanded aqui evita erro se o texto for muito grande
                         child: Text(
-                          local, 
-                          style: const TextStyle(fontSize: 12, color: Colors.black54),
+                          local,
+                          style: const TextStyle(
+                            fontSize: 12,
+                            color: Colors.black54,
+                          ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
@@ -329,7 +364,7 @@ class _PetCard extends StatelessWidget {
 }
 
 class _RecentFeedList extends StatelessWidget {
-  const _RecentFeedList({Key? key}) : super(key: key);
+  const _RecentFeedList({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -342,7 +377,8 @@ class _RecentFeedList extends StatelessWidget {
             isResgatado: true,
             local: 'Parque Ibirapuera',
             timeAgo: '2 horas',
-            imageUrl: 'https://cdn.pixabay.com/photo/2016/12/13/05/15/puppy-1903313_1280.jpg',
+            imageUrl:
+                'https://cdn.pixabay.com/photo/2016/12/13/05/15/puppy-1903313_1280.jpg',
           ),
         ),
         Padding(
@@ -352,7 +388,8 @@ class _RecentFeedList extends StatelessWidget {
             isResgatado: false,
             local: 'Rua das Flores',
             timeAgo: '5 horas',
-            imageUrl: 'https://cdn.pixabay.com/photo/2014/11/30/14/11/cat-551554_1280.jpg',
+            imageUrl:
+                'https://cdn.pixabay.com/photo/2014/11/30/14/11/cat-551554_1280.jpg',
           ),
         ),
       ],
@@ -376,7 +413,11 @@ class _SectionTitle extends StatelessWidget {
         ],
         Text(
           title,
-          style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.black87),
+          style: const TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+            color: Colors.black87,
+          ),
         ),
       ],
     );

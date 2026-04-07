@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:petSave/pages/pet_details_page.dart';
-import 'package:petSave/widgets/feed_card.dart';
-import 'package:petSave/services/database_helper.dart';
-import 'package:petSave/models/pet_card.dart';
+import 'package:pet_save/pages/pet_details_page.dart';
+import 'package:pet_save/widgets/feed_card.dart';
+import 'package:pet_save/services/database_helper.dart';
+import 'package:pet_save/models/pet_card.dart';
 
 class PetSaveHomePage extends StatelessWidget {
-  const PetSaveHomePage({super.key});
+  final String userName;
+
+  const PetSaveHomePage({super.key, required this.userName});
 
   @override
   Widget build(BuildContext context) {
@@ -21,7 +23,7 @@ class PetSaveHomePage extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const _HeaderMenu(),
+                _HeaderMenu(userName: userName),
                 const SizedBox(height: 32),
                 const _HeroBanner(),
                 const SizedBox(height: 32),
@@ -45,7 +47,9 @@ class PetSaveHomePage extends StatelessWidget {
 }
 
 class _HeaderMenu extends StatelessWidget {
-  const _HeaderMenu();
+  final String userName;
+
+  const _HeaderMenu({required this.userName});
 
   @override
   Widget build(BuildContext context) {
@@ -65,7 +69,7 @@ class _HeaderMenu extends StatelessWidget {
         // Menu e Botão (Adaptado para telas menores/mobile)
         Row(
           children: [
-            const Text('Olá, Fulano', style: TextStyle(color: Colors.grey)),
+            Text('Olá, $userName', style: const TextStyle(color: Colors.grey)),
             const SizedBox(width: 16),
             ElevatedButton(
               onPressed: () {},
@@ -231,10 +235,10 @@ class _PetCard extends StatelessWidget {
           color: Colors.white,
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.05),
+            const BoxShadow(
+              color: Color.fromRGBO(0, 0, 0, 0.05),
               blurRadius: 10,
-              offset: const Offset(0, 4),
+              offset: Offset(0, 4),
             ),
           ],
         ),

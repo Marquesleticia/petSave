@@ -1,6 +1,6 @@
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
-import 'package:petSave/models/pet_card.dart';
+import 'package:pet_save/models/pet_card.dart';
 
 class DatabaseHelper {
   static const _databaseName = 'petsave.db';

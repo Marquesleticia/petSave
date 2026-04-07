@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-
-import 'pages/home_page.dart'; 
+import 'pages/login_page.dart';
 
 void main() {
   runApp(const PetSaveApp());
@@ -15,9 +14,9 @@ class PetSaveApp extends StatelessWidget {
       title: 'PetSave',
       theme: ThemeData(
         primarySwatch: Colors.orange,
-        scaffoldBackgroundColor: const Color(0xFFF8F9FA), 
+        scaffoldBackgroundColor: const Color(0xFFF8F9FA),
       ),
-      home: const PetSaveHomePage(), 
+      home: const LoginPage(),
       debugShowCheckedModeBanner: false,
     );
   }

@@ -20,11 +20,6 @@ class FeedCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final tagText = isResgatado ? 'RESGATADO' : 'PERDIDO';
     final tagBackgroundColor = isResgatado ? Colors.purple : Colors.red;
-    final tagTextColor = Colors.white;
-
-    final description = isResgatado
-        ? 'Resgatei este pet em $local. Ele está seguro comigo, procuro o tutor!'
-        : 'Meu pet fugiu próximo a $local. Por favor, me ajude a encontrá-lo!';
 
     return Container(
       padding: const EdgeInsets.all(12),
@@ -32,10 +27,10 @@ class FeedCard extends StatelessWidget {
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+          const BoxShadow(
+            color: Color.fromRGBO(0, 0, 0, 0.05),
             blurRadius: 10,
-            offset: const Offset(0, 4),
+            offset: Offset(0, 4),
           ),
         ],
       ),
@@ -59,16 +54,13 @@ class FeedCard extends StatelessWidget {
                     ),
                   );
                 },
-
                 errorBuilder: (context, error, stackTrace) {
                   return const Icon(Icons.pets, color: Colors.grey, size: 40);
                 },
               ),
             ),
           ),
-
           const SizedBox(width: 16),
-
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -88,7 +80,6 @@ class FeedCard extends StatelessWidget {
                         overflow: TextOverflow.ellipsis,
                       ),
                     ),
-
                     Container(
                       padding: const EdgeInsets.symmetric(
                         horizontal: 8,
@@ -100,8 +91,8 @@ class FeedCard extends StatelessWidget {
                       ),
                       child: Text(
                         tagText,
-                        style: TextStyle(
-                          color: tagTextColor,
+                        style: const TextStyle(
+                          color: Colors.white,
                           fontSize: 10,
                           fontWeight: FontWeight.bold,
                         ),
@@ -109,21 +100,32 @@ class FeedCard extends StatelessWidget {
                     ),
                   ],
                 ),
-                const SizedBox(height: 4),
-
-                Text(
-                  description,
-                  style: const TextStyle(fontSize: 13, color: Colors.black87),
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                ),
                 const SizedBox(height: 8),
-
+                Row(
+                  children: [
+                    const Icon(
+                      Icons.location_on,
+                      size: 12,
+                      color: Colors.black54,
+                    ),
+                    const SizedBox(width: 4),
+                    Expanded(
+                      child: Text(
+                        local,
+                        style: const TextStyle(
+                          fontSize: 12,
+                          color: Colors.black54,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 4),
                 Text(
-                  'Há $timeAgo',
-                  style: const TextStyle(fontSize: 12, color: Colors.black54),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
+                  timeAgo,
+                  style: const TextStyle(fontSize: 11, color: Colors.grey),
                 ),
               ],
             ),

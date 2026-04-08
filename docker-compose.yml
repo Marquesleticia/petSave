@@ -1,0 +1,62 @@
+version: '3.9'
+
+services:
+  # ──────────────────────────────────────────────
+  #  PostgreSQL – banco principal do PetSave
+  # ──────────────────────────────────────────────
+  petsave_db:
+    image: postgres:16-alpine
+    container_name: petsave_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: petsave
+      POSTGRES_USER: petsave_user
+      POSTGRES_PASSWORD: petsave_pass
+    ports:
+      - "5432:5432"
+    volumes:
+      - petsave_pgdata:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    networks:
+      - petsave_net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U petsave_user -d petsave"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ──────────────────────────────────────────────
+  #  pgAdmin – interface web para gerenciar o BD
+  # ──────────────────────────────────────────────
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: petsave_pgadmin
+    restart: unless-stopped
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@petsave.com
+      PGADMIN_DEFAULT_PASSWORD: admin123
+      PGADMIN_CONFIG_SERVER_MODE: 'False'   
+    ports:
+      - "5050:80"
+    volumes:
+      - petsave_pgadmin_data:/var/lib/pgadmin
+      - ./pgadmin_servers.json:/pgadmin4/servers.json:ro
+    depends_on:
+      petsave_db:
+        condition: service_healthy
+    networks:
+      - petsave_net
+
+# ──────────────────────────────────────────────
+#  Volumes persistentes
+# ──────────────────────────────────────────────
+volumes:
+  petsave_pgdata:
+  petsave_pgadmin_data:
+
+# ──────────────────────────────────────────────
+#  Rede isolada
+# ──────────────────────────────────────────────
+networks:
+  petsave_net:
+    driver: bridge

@@ -1,5 +1,13 @@
 import 'package:flutter/material.dart';
 
+// ── Paleta global (Consistência com a Home Page) ──
+const _bg = Color(0xFF141210);
+const _surface = Color(0xFF1F1C19);
+const _orange = Color(0xFFF97316);
+const _textPrimary = Color(0xFFF5F0EA);
+const _textSecondary = Color(0xFF9E9589);
+const _whatsappGreen = Color(0xFF25D366); // Verde moderno para contato
+
 class PetDetailsPage extends StatelessWidget {
   final String name;
   final bool isResgatado;
@@ -18,63 +26,86 @@ class PetDetailsPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Mantendo a regra de cores das tags
+    final badgeColor = isResgatado ? const Color(0xFF8B5CF6) : const Color(0xFFEF4444);
     final tagText = isResgatado ? 'RESGATADO' : 'PERDIDO';
-    final tagColor = isResgatado ? Colors.purple : Colors.red;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F9FA),
+      backgroundColor: _bg,
       appBar: AppBar(
-        title: Text('Detalhes de $name'),
-        backgroundColor: Colors.orange,
-        foregroundColor: Colors.white,
+        title: Text(
+          'Detalhes',
+          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+        ),
+        backgroundColor: _bg,
+        foregroundColor: _textPrimary,
         elevation: 0,
+        centerTitle: true,
+        iconTheme: const IconThemeData(color: _orange), // Seta de voltar laranja
       ),
       body: LayoutBuilder(
         builder: (context, constraints) {
           final isWide = constraints.maxWidth >= 800;
-          final horizontalPadding = isWide ? 32.0 : 16.0;
-          final imageHeight = isWide ? 520.0 : 320.0;
+          final horizontalPadding = isWide ? 40.0 : 24.0;
+          final imageHeight = isWide ? 520.0 : 360.0;
           final titleSize = isWide ? 40.0 : 32.0;
-          final sectionTitleSize = isWide ? 24.0 : 22.0;
-          final descriptionSize = isWide ? 17.0 : 16.0;
-          final buttonFontSize = isWide ? 18.0 : 16.0;
+          final sectionTitleSize = isWide ? 22.0 : 20.0;
+          final descriptionSize = isWide ? 17.0 : 15.0;
+          final buttonFontSize = isWide ? 16.0 : 15.0;
 
-          final image = ClipRRect(
-            borderRadius: BorderRadius.circular(16),
-            child: Image.network(
-              imageUrl,
-              fit: BoxFit.cover,
-              width: double.infinity,
-              height: imageHeight,
-              errorBuilder: (context, error, stackTrace) {
-                return Container(
+          // Extraímos a imagem para aplicar o Hero Animation e sombras
+          final image = Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(24),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.5),
+                  blurRadius: 20,
+                  offset: const Offset(0, 10),
+                ),
+              ],
+            ),
+            // O Hero faz a imagem transicionar suavemente da tela anterior
+            child: Hero(
+              tag: imageUrl, // Esta tag precisa ser igual à da tela anterior
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(24),
+                child: Image.network(
+                  imageUrl,
+                  fit: BoxFit.cover,
                   width: double.infinity,
                   height: imageHeight,
-                  color: Colors.grey[300],
-                  child: const Icon(Icons.pets, size: 100, color: Colors.grey),
-                );
-              },
+                  errorBuilder: (context, error, stackTrace) {
+                    return Container(
+                      width: double.infinity,
+                      height: imageHeight,
+                      color: _surface,
+                      child: const Icon(Icons.pets, size: 80, color: _textSecondary),
+                    );
+                  },
+                ),
+              ),
             ),
           );
 
           final detailsContent = Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              // Tag Roxo/Vermelho com estilo moderno
               Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 6,
-                ),
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 decoration: BoxDecoration(
-                  color: tagColor,
-                  borderRadius: BorderRadius.circular(8),
+                  color: badgeColor.withOpacity(0.15),
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(color: badgeColor.withOpacity(0.4)),
                 ),
                 child: Text(
                   tagText,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 14,
+                  style: TextStyle(
+                    color: badgeColor,
+                    fontWeight: FontWeight.w900,
+                    fontSize: 12,
+                    letterSpacing: 1.0,
                   ),
                 ),
               ),
@@ -84,26 +115,24 @@ class PetDetailsPage extends StatelessWidget {
                 name,
                 style: TextStyle(
                   fontSize: titleSize,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black87,
+                  fontWeight: FontWeight.w900,
+                  color: _textPrimary,
+                  height: 1.1,
                 ),
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: 12),
 
               Row(
                 children: [
-                  const Icon(
-                    Icons.location_on,
-                    color: Colors.black54,
-                    size: 24,
-                  ),
+                  const Icon(Icons.location_on_rounded, color: _orange, size: 20),
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
                       local,
                       style: const TextStyle(
-                        fontSize: 18,
-                        color: Colors.black54,
+                        fontSize: 15,
+                        color: _textSecondary,
+                        fontWeight: FontWeight.w500,
                       ),
                     ),
                   ),
@@ -111,40 +140,48 @@ class PetDetailsPage extends StatelessWidget {
               ),
               const SizedBox(height: 32),
 
+              // Separador sutil
+              const Divider(color: Color(0xFF2E2B27), thickness: 1, height: 1),
+              const SizedBox(height: 32),
+
               Text(
                 'Sobre',
                 style: TextStyle(
                   fontSize: sectionTitleSize,
                   fontWeight: FontWeight.bold,
-                  color: Colors.black87,
+                  color: _textPrimary,
                 ),
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: 16),
               Text(
                 description,
                 style: TextStyle(
                   fontSize: descriptionSize,
-                  color: Colors.black87,
-                  height: 1.5,
+                  color: const Color(0xFFD6D1CA), // Um tom um pouco mais claro que o secondary
+                  height: 1.6,
                 ),
               ),
               const SizedBox(height: 40),
 
+              // Botão de Contato
               SizedBox(
                 width: double.infinity,
-                height: 50,
+                height: 54,
                 child: ElevatedButton.icon(
-                  onPressed: () {},
-                  icon: const Icon(Icons.message),
+                  onPressed: () {
+                    // Lógica de contato futuramente aqui
+                  },
+                  icon: const Icon(Icons.chat_bubble_rounded, size: 20),
                   label: Text(
                     'Entrar em contato',
-                    style: TextStyle(fontSize: buttonFontSize),
+                    style: TextStyle(fontSize: buttonFontSize, fontWeight: FontWeight.bold),
                   ),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.green,
+                    backgroundColor: _whatsappGreen,
                     foregroundColor: Colors.white,
+                    elevation: 0,
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(16),
                     ),
                   ),
                 ),
@@ -153,25 +190,27 @@ class PetDetailsPage extends StatelessWidget {
           );
 
           return SingleChildScrollView(
+            physics: const BouncingScrollPhysics(),
             padding: EdgeInsets.symmetric(
               horizontal: horizontalPadding,
-              vertical: 24.0,
+              vertical: 16.0,
             ),
             child: isWide
                 ? Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Expanded(flex: 1, child: image),
-                      const SizedBox(width: 32),
-                      Expanded(flex: 1, child: detailsContent),
+                      Expanded(flex: 5, child: image),
+                      const SizedBox(width: 40),
+                      Expanded(flex: 6, child: detailsContent),
                     ],
                   )
                 : Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
                       image,
-                      const SizedBox(height: 24),
+                      const SizedBox(height: 28),
                       detailsContent,
+                      const SizedBox(height: 40), // Espaço extra no final para não colar na borda
                     ],
                   ),
           );

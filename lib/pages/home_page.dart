@@ -14,7 +14,7 @@ const _orange = Color(0xFFF97316);
 const _orangeSoft = Color(0x26F97316);
 const _textPrimary = Color(0xFFF5F0EA);
 const _textSecondary = Color(0xFF9E9589);
-const _divider = Color(0xFF3E3933); // Clareado levemente para melhor contraste
+const _divider = Color(0xFF3E3933);
 
 class PetSaveHomePage extends StatelessWidget {
   final String userName;
@@ -26,7 +26,7 @@ class PetSaveHomePage extends StatelessWidget {
       backgroundColor: _bg,
       body: SafeArea(
         child: SingleChildScrollView(
-          physics: const BouncingScrollPhysics(), // Scroll mais dinâmico
+          physics: const BouncingScrollPhysics(),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -116,7 +116,6 @@ class _TopBar extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          // Logo com tipografia aprimorada
           Row(
             children: [
               Container(
@@ -156,10 +155,8 @@ class _TopBar extends StatelessWidget {
               ),
             ],
           ),
-          // Ações
           Row(
             children: [
-              // Avatar + nome
               Container(
                 padding: const EdgeInsets.only(left: 4, right: 12, top: 4, bottom: 4),
                 decoration: BoxDecoration(
@@ -186,7 +183,6 @@ class _TopBar extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 12),
-              // Logout
               Tooltip(
                 message: 'Sair',
                 child: InkWell(
@@ -236,13 +232,11 @@ class _HeroBanner extends StatelessWidget {
           child: Stack(
             fit: StackFit.expand,
             children: [
-              // Foto de fundo
               Image.network(
                 'https://cdn.pixabay.com/photo/2018/03/31/06/31/dog-3277416_1280.jpg',
                 fit: BoxFit.cover,
                 errorBuilder: (_, __, ___) => Container(color: const Color(0xFF2A2520)),
               ),
-              // Gradiente mais forte para legibilidade
               Container(
                 decoration: const BoxDecoration(
                   gradient: LinearGradient(
@@ -253,7 +247,6 @@ class _HeroBanner extends StatelessWidget {
                   ),
                 ),
               ),
-              // Conteúdo
               Padding(
                 padding: const EdgeInsets.all(32),
                 child: Column(
@@ -412,7 +405,7 @@ class _UrgentPetsListState extends State<_UrgentPetsList> {
                   style: TextStyle(color: _textSecondary))));
     }
     return SizedBox(
-      height: 230, // Altura ajustada para acomodar sombras maiores
+      height: 230,
       child: ListView.builder(
         physics: const BouncingScrollPhysics(),
         scrollDirection: Axis.horizontal,
@@ -421,7 +414,7 @@ class _UrgentPetsListState extends State<_UrgentPetsList> {
         itemBuilder: (context, index) {
           final pet = urgentPets[index];
           return Padding(
-            padding: const EdgeInsets.only(right: 16, bottom: 20), // Margem inferior para a sombra
+            padding: const EdgeInsets.only(right: 16, bottom: 20),
             child: _PetCard(
               name: pet.name,
               local: pet.local,
@@ -451,7 +444,6 @@ class _PetCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Cores específicas solicitadas na sua paleta de preferências para as tags
     final badgeColor = isResgatado ? const Color(0xFF8B5CF6) : const Color(0xFFEF4444);
     final badgeLabel = isResgatado ? 'RESGATADO' : 'PERDIDO';
 
@@ -473,7 +465,7 @@ class _PetCard extends StatelessWidget {
       child: Container(
         width: 160,
         decoration: BoxDecoration(
-          color: _surface, // Fundo mais integrado
+          color: _surface,
           borderRadius: BorderRadius.circular(20),
           border: Border.all(color: _divider),
           boxShadow: [
@@ -487,7 +479,6 @@ class _PetCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Imagem com Gradiente interno
             Stack(
               children: [
                 ClipRRect(
@@ -504,7 +495,6 @@ class _PetCard extends StatelessWidget {
                     ),
                   ),
                 ),
-                // Degradê sobre a imagem para destacar a tag
                 Positioned.fill(
                   child: Container(
                     decoration: BoxDecoration(
@@ -518,14 +508,13 @@ class _PetCard extends StatelessWidget {
                     ),
                   ),
                 ),
-                // Badge Moderna
                 Positioned(
                   top: 10,
                   left: 10,
                   child: Container(
                     padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                     decoration: BoxDecoration(
-                      color: badgeColor.withOpacity(0.9), // Fundo vibrante
+                      color: badgeColor.withOpacity(0.9),
                       borderRadius: BorderRadius.circular(10),
                       boxShadow: [
                         BoxShadow(
@@ -545,7 +534,6 @@ class _PetCard extends StatelessWidget {
                 ),
               ],
             ),
-            // Info
             Padding(
               padding: const EdgeInsets.all(14),
               child: Column(
@@ -581,7 +569,7 @@ class _PetCard extends StatelessWidget {
   }
 }
 
-// ── Recent Feed List ──────────────────────────────
+// ── Recent Feed List (Com Tabs integradas) ────────
 class _RecentFeedList extends StatefulWidget {
   const _RecentFeedList();
 
@@ -593,6 +581,7 @@ class _RecentFeedListState extends State<_RecentFeedList> {
   List<PetCard> recentPets = [];
   bool isLoading = true;
   String? errorMessage;
+  int _selectedIndex = 0; // 0 = Perdidos, 1 = Resgatados
   final _petService = PostgresService();
 
   @override
@@ -606,7 +595,7 @@ class _RecentFeedListState extends State<_RecentFeedList> {
       final pets = await _petService.getAllPetCards();
       if (!mounted) return;
       setState(() {
-        recentPets = pets.length > 10 ? pets.sublist(0, 10) : pets;
+        recentPets = pets;
         isLoading = false;
       });
     } catch (e) {
@@ -630,18 +619,95 @@ class _RecentFeedListState extends State<_RecentFeedList> {
             style: const TextStyle(color: Color(0xFFEF4444)))),
       );
     }
-    if (recentPets.isEmpty) {
-      return const Padding(
-        padding: EdgeInsets.all(16),
-        child: Center(child: Text('Nenhum pet no feed ainda.',
-            style: TextStyle(color: _textSecondary))),
-      );
-    }
+
+    // Filtrando as listas com base no status do pet
+    final perdidos = recentPets.where((pet) => !pet.isResgatado).toList();
+    final resgatados = recentPets.where((pet) => pet.isResgatado).toList();
+    
+    // Lista atual a ser exibida dependendo da aba selecionada
+    final listToDisplay = _selectedIndex == 0 ? perdidos : resgatados;
+
     return Column(
-      children: recentPets.map((pet) => Padding(
-        padding: const EdgeInsets.only(bottom: 12),
-        child: _FeedRow(pet: pet),
-      )).toList(),
+      children: [
+        // ── Custom Tab Bar ──
+        Container(
+          height: 48,
+          decoration: BoxDecoration(
+            color: _surface,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: _divider),
+          ),
+          child: Row(
+            children: [
+              Expanded(
+                child: GestureDetector(
+                  onTap: () => setState(() => _selectedIndex = 0),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: _selectedIndex == 0 ? const Color(0xFFEF4444).withOpacity(0.15) : Colors.transparent,
+                      borderRadius: BorderRadius.circular(15),
+                      border: _selectedIndex == 0 ? Border.all(color: const Color(0xFFEF4444).withOpacity(0.3)) : null,
+                    ),
+                    child: Center(
+                      child: Text(
+                        'Perdidos (${perdidos.length})',
+                        style: TextStyle(
+                          color: _selectedIndex == 0 ? const Color(0xFFEF4444) : _textSecondary,
+                          fontWeight: _selectedIndex == 0 ? FontWeight.bold : FontWeight.normal,
+                          fontSize: 13,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              Expanded(
+                child: GestureDetector(
+                  onTap: () => setState(() => _selectedIndex = 1),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: _selectedIndex == 1 ? const Color(0xFF8B5CF6).withOpacity(0.15) : Colors.transparent,
+                      borderRadius: BorderRadius.circular(15),
+                      border: _selectedIndex == 1 ? Border.all(color: const Color(0xFF8B5CF6).withOpacity(0.3)) : null,
+                    ),
+                    child: Center(
+                      child: Text(
+                        'Resgatados (${resgatados.length})',
+                        style: TextStyle(
+                          color: _selectedIndex == 1 ? const Color(0xFF8B5CF6) : _textSecondary,
+                          fontWeight: _selectedIndex == 1 ? FontWeight.bold : FontWeight.normal,
+                          fontSize: 13,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 20),
+
+        // ── Lista Filtrada ──
+        if (listToDisplay.isEmpty)
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 32),
+            child: Text(
+              _selectedIndex == 0 
+                  ? 'Nenhum pet perdido registrado no momento.' 
+                  : 'Nenhum pet resgatado registrado no momento.',
+              style: const TextStyle(color: _textSecondary),
+              textAlign: TextAlign.center,
+            ),
+          )
+        else
+          Column(
+            children: listToDisplay.take(10).map((pet) => Padding( // limitando a 10 no feed para otimização
+              padding: const EdgeInsets.only(bottom: 12),
+              child: _FeedRow(pet: pet),
+            )).toList(),
+          ),
+      ],
     );
   }
 }
@@ -671,7 +737,6 @@ class _FeedRow extends StatelessWidget {
       ),
       child: Row(
         children: [
-          // Foto com leve arredondamento e borda sutil
           Container(
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(14),
@@ -694,7 +759,6 @@ class _FeedRow extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 16),
-          // Info
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -718,7 +782,6 @@ class _FeedRow extends StatelessWidget {
                             letterSpacing: 0.5),
                       ),
                     ),
-                    // O tempo foi movido para cima para melhor alinhamento visual
                     Row(
                       children: [
                         const Icon(Icons.access_time_rounded, size: 12, color: _textSecondary),

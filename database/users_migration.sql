@@ -1,8 +1,3 @@
--- ============================================================
---  PetSave – users_migration.sql
---  Tabela de usuários cadastrados pelo RegisterPage
--- ============================================================
-
 CREATE EXTENSION IF NOT EXISTS pgcrypto;
 
 CREATE TABLE IF NOT EXISTS users (

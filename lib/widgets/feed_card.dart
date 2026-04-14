@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pet_save/utils/image_helpers.dart';
 
 class FeedCard extends StatelessWidget {
   final String name;
@@ -42,8 +43,8 @@ class FeedCard extends StatelessWidget {
               width: 80,
               height: 80,
               color: Colors.grey[200],
-              child: Image.network(
-                imageUrl,
+              child: Image(
+                image: petImageProvider(imageUrl),
                 fit: BoxFit.cover,
                 loadingBuilder: (context, child, loadingProgress) {
                   if (loadingProgress == null) return child;

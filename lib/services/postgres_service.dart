@@ -50,13 +50,13 @@ class PostgresService {
 
       return null; // sucesso
     } on ServerException catch (e) {
-  if (e.message.contains('unique') ||
-      e.message.contains('idx_users_email') ||
-      e.message.contains('duplicate')) {
-    return 'Este e-mail já está cadastrado.';
-  }
-  return 'Erro ao cadastrar: ${e.message}';
-} finally {
+      if (e.message.contains('unique') ||
+          e.message.contains('idx_users_email') ||
+          e.message.contains('duplicate')) {
+        return 'Este e-mail já está cadastrado.';
+      }
+      return 'Erro ao cadastrar: ${e.message}';
+    } finally {
       await conn.close();
     }
   }
@@ -103,14 +103,16 @@ class PostgresService {
         parameters: [isResgatado ? 1 : 0],
       );
 
-      return result.map((row) => PetCard(
-        id: row[0] as int?,
-        name: row[1] as String,
-        isResgatado: (row[2] as int) == 1,
-        local: row[3] as String,
-        timeAgo: row[4] as String,
-        imageUrl: row[5] as String,
-      )).toList();
+      return result
+          .map((row) => PetCard(
+                id: row[0] as int?,
+                name: row[1] as String,
+                isResgatado: (row[2] as int) == 1,
+                local: row[3] as String,
+                timeAgo: row[4] as String,
+                imageUrl: row[5] as String,
+              ))
+          .toList();
     } finally {
       await conn.close();
     }
@@ -127,14 +129,43 @@ class PostgresService {
         '''),
       );
 
-      return result.map((row) => PetCard(
-        id: row[0] as int?,
-        name: row[1] as String,
-        isResgatado: (row[2] as int) == 1,
-        local: row[3] as String,
-        timeAgo: row[4] as String,
-        imageUrl: row[5] as String,
-      )).toList();
+      return result
+          .map((row) => PetCard(
+                id: row[0] as int?,
+                name: row[1] as String,
+                isResgatado: (row[2] as int) == 1,
+                local: row[3] as String,
+                timeAgo: row[4] as String,
+                imageUrl: row[5] as String,
+              ))
+          .toList();
+    } finally {
+      await conn.close();
+    }
+  }
+
+  // ── Inserir novo pet card ────────────────────────────────
+  /// Retorna null se OK, ou uma mensagem de erro se falhar.
+  Future<String?> insertPetCard({
+    required String name,
+    required bool isResgatado,
+    required String local,
+    required String timeAgo,
+    required String imageUrl,
+  }) async {
+    final conn = await _openConnection();
+    try {
+      await conn.execute(
+        Sql(r'''
+          INSERT INTO pet_cards (name, "isResgatado", local, "timeAgo", "imageUrl")
+          VALUES ($1, $2, $3, $4, $5)
+        '''),
+        parameters: [name, isResgatado ? 1 : 0, local, timeAgo, imageUrl],
+      );
+
+      return null; // sucesso
+    } on ServerException catch (e) {
+      return 'Erro ao cadastrar pet: ${e.message}';
     } finally {
       await conn.close();
     }

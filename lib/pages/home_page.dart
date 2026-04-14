@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
-// Importe seus arquivos reais aqui
 import 'package:pet_save/models/pet_card.dart';
 import 'package:pet_save/pages/login_page.dart';
 import 'package:pet_save/pages/pet_details_page.dart';
+import 'package:pet_save/pages/pet_registration_page.dart';
 import 'package:pet_save/services/postgres_service.dart';
+import 'package:pet_save/utils/image_helpers.dart';
 import 'package:pet_save/widgets/feed_card.dart';
 
 // ── Paleta global ─────────────────────────────────
@@ -16,9 +17,20 @@ const _textPrimary = Color(0xFFF5F0EA);
 const _textSecondary = Color(0xFF9E9589);
 const _divider = Color(0xFF3E3933);
 
-class PetSaveHomePage extends StatelessWidget {
+class PetSaveHomePage extends StatefulWidget {
   final String userName;
   const PetSaveHomePage({super.key, required this.userName});
+
+  @override
+  State<PetSaveHomePage> createState() => _PetSaveHomePageState();
+}
+
+class _PetSaveHomePageState extends State<PetSaveHomePage> {
+  int _refreshToken = 0;
+
+  void _refreshLists() {
+    setState(() => _refreshToken++);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -30,8 +42,8 @@ class PetSaveHomePage extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _TopBar(userName: userName),
-              const _HeroBanner(),
+              _TopBar(userName: widget.userName),
+              _HeroBanner(onPetSaved: _refreshLists),
               const SizedBox(height: 32),
               const Padding(
                 padding: EdgeInsets.symmetric(horizontal: 24),
@@ -43,7 +55,7 @@ class PetSaveHomePage extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 16),
-              const _UrgentPetsList(),
+              _UrgentPetsList(key: ValueKey('urgent_$_refreshToken')),
               const SizedBox(height: 32),
               const Padding(
                 padding: EdgeInsets.symmetric(horizontal: 24),
@@ -55,9 +67,9 @@ class PetSaveHomePage extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 16),
-              const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 24),
-                child: _RecentFeedList(),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24),
+                child: _RecentFeedList(key: ValueKey('recent_$_refreshToken')),
               ),
               const SizedBox(height: 40),
             ],
@@ -86,7 +98,8 @@ class _TopBar extends StatelessWidget {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancelar', style: TextStyle(color: _textSecondary)),
+            child:
+                const Text('Cancelar', style: TextStyle(color: _textSecondary)),
           ),
           ElevatedButton(
             onPressed: () {
@@ -100,7 +113,8 @@ class _TopBar extends StatelessWidget {
             style: ElevatedButton.styleFrom(
               backgroundColor: _orange,
               foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12)),
             ),
             child: const Text('Sair'),
           ),
@@ -144,12 +158,18 @@ class _TopBar extends StatelessWidget {
                   TextSpan(
                     text: 'Pet',
                     style: TextStyle(
-                        fontSize: 22, fontWeight: FontWeight.w800, color: _textPrimary, letterSpacing: -0.5),
+                        fontSize: 22,
+                        fontWeight: FontWeight.w800,
+                        color: _textPrimary,
+                        letterSpacing: -0.5),
                   ),
                   TextSpan(
                     text: 'Save',
                     style: TextStyle(
-                        fontSize: 22, fontWeight: FontWeight.w800, color: _orange, letterSpacing: -0.5),
+                        fontSize: 22,
+                        fontWeight: FontWeight.w800,
+                        color: _orange,
+                        letterSpacing: -0.5),
                   ),
                 ]),
               ),
@@ -158,7 +178,8 @@ class _TopBar extends StatelessWidget {
           Row(
             children: [
               Container(
-                padding: const EdgeInsets.only(left: 4, right: 12, top: 4, bottom: 4),
+                padding: const EdgeInsets.only(
+                    left: 4, right: 12, top: 4, bottom: 4),
                 decoration: BoxDecoration(
                   color: _surface,
                   borderRadius: BorderRadius.circular(30),
@@ -178,7 +199,9 @@ class _TopBar extends StatelessWidget {
                     const SizedBox(width: 8),
                     Text(userName,
                         style: const TextStyle(
-                            color: _textPrimary, fontSize: 13, fontWeight: FontWeight.w600)),
+                            color: _textPrimary,
+                            fontSize: 13,
+                            fontWeight: FontWeight.w600)),
                   ],
                 ),
               ),
@@ -195,7 +218,8 @@ class _TopBar extends StatelessWidget {
                       borderRadius: BorderRadius.circular(12),
                       border: Border.all(color: _divider),
                     ),
-                    child: const Icon(Icons.logout_rounded, color: _textSecondary, size: 20),
+                    child: const Icon(Icons.logout_rounded,
+                        color: _textSecondary, size: 20),
                   ),
                 ),
               ),
@@ -209,7 +233,8 @@ class _TopBar extends StatelessWidget {
 
 // ── Hero Banner ───────────────────────────────────
 class _HeroBanner extends StatelessWidget {
-  const _HeroBanner();
+  final VoidCallback onPetSaved;
+  const _HeroBanner({required this.onPetSaved});
 
   @override
   Widget build(BuildContext context) {
@@ -235,7 +260,8 @@ class _HeroBanner extends StatelessWidget {
               Image.network(
                 'https://cdn.pixabay.com/photo/2018/03/31/06/31/dog-3277416_1280.jpg',
                 fit: BoxFit.cover,
-                errorBuilder: (_, __, ___) => Container(color: const Color(0xFF2A2520)),
+                errorBuilder: (_, __, ___) =>
+                    Container(color: const Color(0xFF2A2520)),
               ),
               Container(
                 decoration: const BoxDecoration(
@@ -254,7 +280,8 @@ class _HeroBanner extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 14, vertical: 6),
                       decoration: BoxDecoration(
                         color: _orangeSoft,
                         borderRadius: BorderRadius.circular(20),
@@ -263,7 +290,10 @@ class _HeroBanner extends StatelessWidget {
                       child: const Text(
                         '🐾  Juntos fazemos a diferença',
                         style: TextStyle(
-                            color: _orange, fontSize: 12, fontWeight: FontWeight.w700, letterSpacing: 0.2),
+                            color: _orange,
+                            fontSize: 12,
+                            fontWeight: FontWeight.w700,
+                            letterSpacing: 0.2),
                       ),
                     ),
                     const SizedBox(height: 16),
@@ -275,20 +305,46 @@ class _HeroBanner extends StatelessWidget {
                         fontWeight: FontWeight.w900,
                         height: 1.1,
                         shadows: [
-                          Shadow(color: Colors.black54, blurRadius: 10, offset: Offset(0, 2))
+                          Shadow(
+                              color: Colors.black54,
+                              blurRadius: 10,
+                              offset: Offset(0, 2))
                         ],
                       ),
                     ),
                     const Spacer(),
                     ElevatedButton.icon(
-                      onPressed: () {},
+                      onPressed: () async {
+                        final saved = await Navigator.push<bool>(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => const PetRegistrationPage(),
+                          ),
+                        );
+                        if (saved == true) {
+                          onPetSaved();
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Pet cadastrado com sucesso!'),
+                              backgroundColor: _orange,
+                              behavior: SnackBarBehavior.floating,
+                              shape: RoundedRectangleBorder(
+                                borderRadius:
+                                    BorderRadius.all(Radius.circular(12)),
+                              ),
+                            ),
+                          );
+                        }
+                      },
                       icon: const Icon(Icons.add_circle_outline, size: 18),
                       label: const Text('Novo Registro',
-                          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold, fontSize: 14)),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: _orange,
                         foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 24, vertical: 14),
                         shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(16)),
                         elevation: 4,
@@ -340,11 +396,16 @@ class _SectionHeader extends StatelessWidget {
           children: [
             Text(label,
                 style: TextStyle(
-                    color: iconColor, fontSize: 11, fontWeight: FontWeight.w800, letterSpacing: 1.2)),
+                    color: iconColor,
+                    fontSize: 11,
+                    fontWeight: FontWeight.w800,
+                    letterSpacing: 1.2)),
             const SizedBox(height: 2),
             Text(title,
                 style: const TextStyle(
-                    color: _textPrimary, fontSize: 20, fontWeight: FontWeight.w800)),
+                    color: _textPrimary,
+                    fontSize: 20,
+                    fontWeight: FontWeight.w800)),
           ],
         ),
       ],
@@ -354,7 +415,7 @@ class _SectionHeader extends StatelessWidget {
 
 // ── Urgent Pets List ──────────────────────────────
 class _UrgentPetsList extends StatefulWidget {
-  const _UrgentPetsList();
+  const _UrgentPetsList({super.key});
 
   @override
   State<_UrgentPetsList> createState() => _UrgentPetsListState();
@@ -376,10 +437,16 @@ class _UrgentPetsListState extends State<_UrgentPetsList> {
     try {
       final pets = await _petService.getPetCardsByType(false);
       if (!mounted) return;
-      setState(() { urgentPets = pets; isLoading = false; });
+      setState(() {
+        urgentPets = pets;
+        isLoading = false;
+      });
     } catch (e) {
       if (!mounted) return;
-      setState(() { errorMessage = 'Erro: $e'; isLoading = false; });
+      setState(() {
+        errorMessage = 'Erro: $e';
+        isLoading = false;
+      });
     }
   }
 
@@ -444,7 +511,8 @@ class _PetCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final badgeColor = isResgatado ? const Color(0xFF8B5CF6) : const Color(0xFFEF4444);
+    final badgeColor =
+        isResgatado ? const Color(0xFF8B5CF6) : const Color(0xFFEF4444);
     final badgeLabel = isResgatado ? 'RESGATADO' : 'PERDIDO';
 
     return GestureDetector(
@@ -482,27 +550,33 @@ class _PetCard extends StatelessWidget {
             Stack(
               children: [
                 ClipRRect(
-                  borderRadius: const BorderRadius.vertical(top: Radius.circular(19)),
-                  child: Image.network(
-                    imageUrl,
+                  borderRadius:
+                      const BorderRadius.vertical(top: Radius.circular(19)),
+                  child: Image(
+                    image: petImageProvider(imageUrl),
                     height: 130,
                     width: double.infinity,
                     fit: BoxFit.cover,
                     errorBuilder: (_, __, ___) => Container(
                       height: 130,
                       color: const Color(0xFF2A2520),
-                      child: const Icon(Icons.pets, color: _textSecondary, size: 32),
+                      child: const Icon(Icons.pets,
+                          color: _textSecondary, size: 32),
                     ),
                   ),
                 ),
                 Positioned.fill(
                   child: Container(
                     decoration: BoxDecoration(
-                      borderRadius: const BorderRadius.vertical(top: Radius.circular(19)),
+                      borderRadius:
+                          const BorderRadius.vertical(top: Radius.circular(19)),
                       gradient: LinearGradient(
                         begin: Alignment.topCenter,
                         end: Alignment.bottomCenter,
-                        colors: [Colors.black.withOpacity(0.4), Colors.transparent],
+                        colors: [
+                          Colors.black.withOpacity(0.4),
+                          Colors.transparent
+                        ],
                         stops: const [0.0, 0.4],
                       ),
                     ),
@@ -512,7 +586,8 @@ class _PetCard extends StatelessWidget {
                   top: 10,
                   left: 10,
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                     decoration: BoxDecoration(
                       color: badgeColor.withOpacity(0.9),
                       borderRadius: BorderRadius.circular(10),
@@ -549,11 +624,15 @@ class _PetCard extends StatelessWidget {
                   const SizedBox(height: 6),
                   Row(
                     children: [
-                      const Icon(Icons.location_on_rounded, size: 14, color: _textSecondary),
+                      const Icon(Icons.location_on_rounded,
+                          size: 14, color: _textSecondary),
                       const SizedBox(width: 4),
                       Expanded(
                         child: Text(local,
-                            style: const TextStyle(fontSize: 12, color: _textSecondary, fontWeight: FontWeight.w500),
+                            style: const TextStyle(
+                                fontSize: 12,
+                                color: _textSecondary,
+                                fontWeight: FontWeight.w500),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis),
                       ),
@@ -571,7 +650,7 @@ class _PetCard extends StatelessWidget {
 
 // ── Recent Feed List (Com Tabs integradas) ────────
 class _RecentFeedList extends StatefulWidget {
-  const _RecentFeedList();
+  const _RecentFeedList({super.key});
 
   @override
   State<_RecentFeedList> createState() => _RecentFeedListState();
@@ -600,7 +679,10 @@ class _RecentFeedListState extends State<_RecentFeedList> {
       });
     } catch (e) {
       if (!mounted) return;
-      setState(() { errorMessage = 'Erro: $e'; isLoading = false; });
+      setState(() {
+        errorMessage = 'Erro: $e';
+        isLoading = false;
+      });
     }
   }
 
@@ -615,15 +697,16 @@ class _RecentFeedListState extends State<_RecentFeedList> {
     if (errorMessage != null) {
       return Padding(
         padding: const EdgeInsets.all(16),
-        child: Center(child: Text(errorMessage!,
-            style: const TextStyle(color: Color(0xFFEF4444)))),
+        child: Center(
+            child: Text(errorMessage!,
+                style: const TextStyle(color: Color(0xFFEF4444)))),
       );
     }
 
     // Filtrando as listas com base no status do pet
     final perdidos = recentPets.where((pet) => !pet.isResgatado).toList();
     final resgatados = recentPets.where((pet) => pet.isResgatado).toList();
-    
+
     // Lista atual a ser exibida dependendo da aba selecionada
     final listToDisplay = _selectedIndex == 0 ? perdidos : resgatados;
 
@@ -644,16 +727,25 @@ class _RecentFeedListState extends State<_RecentFeedList> {
                   onTap: () => setState(() => _selectedIndex = 0),
                   child: Container(
                     decoration: BoxDecoration(
-                      color: _selectedIndex == 0 ? const Color(0xFFEF4444).withOpacity(0.15) : Colors.transparent,
+                      color: _selectedIndex == 0
+                          ? const Color(0xFFEF4444).withOpacity(0.15)
+                          : Colors.transparent,
                       borderRadius: BorderRadius.circular(15),
-                      border: _selectedIndex == 0 ? Border.all(color: const Color(0xFFEF4444).withOpacity(0.3)) : null,
+                      border: _selectedIndex == 0
+                          ? Border.all(
+                              color: const Color(0xFFEF4444).withOpacity(0.3))
+                          : null,
                     ),
                     child: Center(
                       child: Text(
                         'Perdidos (${perdidos.length})',
                         style: TextStyle(
-                          color: _selectedIndex == 0 ? const Color(0xFFEF4444) : _textSecondary,
-                          fontWeight: _selectedIndex == 0 ? FontWeight.bold : FontWeight.normal,
+                          color: _selectedIndex == 0
+                              ? const Color(0xFFEF4444)
+                              : _textSecondary,
+                          fontWeight: _selectedIndex == 0
+                              ? FontWeight.bold
+                              : FontWeight.normal,
                           fontSize: 13,
                         ),
                       ),
@@ -666,16 +758,25 @@ class _RecentFeedListState extends State<_RecentFeedList> {
                   onTap: () => setState(() => _selectedIndex = 1),
                   child: Container(
                     decoration: BoxDecoration(
-                      color: _selectedIndex == 1 ? const Color(0xFF8B5CF6).withOpacity(0.15) : Colors.transparent,
+                      color: _selectedIndex == 1
+                          ? const Color(0xFF8B5CF6).withOpacity(0.15)
+                          : Colors.transparent,
                       borderRadius: BorderRadius.circular(15),
-                      border: _selectedIndex == 1 ? Border.all(color: const Color(0xFF8B5CF6).withOpacity(0.3)) : null,
+                      border: _selectedIndex == 1
+                          ? Border.all(
+                              color: const Color(0xFF8B5CF6).withOpacity(0.3))
+                          : null,
                     ),
                     child: Center(
                       child: Text(
                         'Resgatados (${resgatados.length})',
                         style: TextStyle(
-                          color: _selectedIndex == 1 ? const Color(0xFF8B5CF6) : _textSecondary,
-                          fontWeight: _selectedIndex == 1 ? FontWeight.bold : FontWeight.normal,
+                          color: _selectedIndex == 1
+                              ? const Color(0xFF8B5CF6)
+                              : _textSecondary,
+                          fontWeight: _selectedIndex == 1
+                              ? FontWeight.bold
+                              : FontWeight.normal,
                           fontSize: 13,
                         ),
                       ),
@@ -693,8 +794,8 @@ class _RecentFeedListState extends State<_RecentFeedList> {
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 32),
             child: Text(
-              _selectedIndex == 0 
-                  ? 'Nenhum pet perdido registrado no momento.' 
+              _selectedIndex == 0
+                  ? 'Nenhum pet perdido registrado no momento.'
                   : 'Nenhum pet resgatado registrado no momento.',
               style: const TextStyle(color: _textSecondary),
               textAlign: TextAlign.center,
@@ -702,10 +803,14 @@ class _RecentFeedListState extends State<_RecentFeedList> {
           )
         else
           Column(
-            children: listToDisplay.take(10).map((pet) => Padding( // limitando a 10 no feed para otimização
-              padding: const EdgeInsets.only(bottom: 12),
-              child: _FeedRow(pet: pet),
-            )).toList(),
+            children: listToDisplay
+                .take(10)
+                .map((pet) => Padding(
+                      // limitando a 10 no feed para otimização
+                      padding: const EdgeInsets.only(bottom: 12),
+                      child: _FeedRow(pet: pet),
+                    ))
+                .toList(),
           ),
       ],
     );
@@ -719,7 +824,8 @@ class _FeedRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final badgeColor = pet.isResgatado ? const Color(0xFF8B5CF6) : const Color(0xFFEF4444);
+    final badgeColor =
+        pet.isResgatado ? const Color(0xFF8B5CF6) : const Color(0xFFEF4444);
 
     return Container(
       padding: const EdgeInsets.all(12),
@@ -744,8 +850,8 @@ class _FeedRow extends StatelessWidget {
             ),
             child: ClipRRect(
               borderRadius: BorderRadius.circular(12),
-              child: Image.network(
-                pet.imageUrl,
+              child: Image(
+                image: petImageProvider(pet.imageUrl),
                 width: 72,
                 height: 72,
                 fit: BoxFit.cover,
@@ -767,7 +873,8 @@ class _FeedRow extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 8, vertical: 4),
                       decoration: BoxDecoration(
                         color: badgeColor.withOpacity(0.15),
                         borderRadius: BorderRadius.circular(8),
@@ -784,10 +891,14 @@ class _FeedRow extends StatelessWidget {
                     ),
                     Row(
                       children: [
-                        const Icon(Icons.access_time_rounded, size: 12, color: _textSecondary),
+                        const Icon(Icons.access_time_rounded,
+                            size: 12, color: _textSecondary),
                         const SizedBox(width: 4),
                         Text(pet.timeAgo,
-                            style: const TextStyle(color: _textSecondary, fontSize: 11, fontWeight: FontWeight.w500)),
+                            style: const TextStyle(
+                                color: _textSecondary,
+                                fontSize: 11,
+                                fontWeight: FontWeight.w500)),
                       ],
                     ),
                   ],
@@ -801,11 +912,15 @@ class _FeedRow extends StatelessWidget {
                 const SizedBox(height: 4),
                 Row(
                   children: [
-                    const Icon(Icons.location_on_rounded, size: 14, color: _textSecondary),
+                    const Icon(Icons.location_on_rounded,
+                        size: 14, color: _textSecondary),
                     const SizedBox(width: 4),
                     Expanded(
                       child: Text(pet.local,
-                          style: const TextStyle(fontSize: 13, color: _textSecondary, fontWeight: FontWeight.w500),
+                          style: const TextStyle(
+                              fontSize: 13,
+                              color: _textSecondary,
+                              fontWeight: FontWeight.w500),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis),
                     ),

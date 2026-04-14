@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pet_save/utils/image_helpers.dart';
 
 // ── Paleta global (Consistência com a Home Page) ──
 const _bg = Color(0xFF141210);
@@ -27,7 +28,8 @@ class PetDetailsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // Mantendo a regra de cores das tags
-    final badgeColor = isResgatado ? const Color(0xFF8B5CF6) : const Color(0xFFEF4444);
+    final badgeColor =
+        isResgatado ? const Color(0xFF8B5CF6) : const Color(0xFFEF4444);
     final tagText = isResgatado ? 'RESGATADO' : 'PERDIDO';
 
     return Scaffold(
@@ -41,7 +43,8 @@ class PetDetailsPage extends StatelessWidget {
         foregroundColor: _textPrimary,
         elevation: 0,
         centerTitle: true,
-        iconTheme: const IconThemeData(color: _orange), // Seta de voltar laranja
+        iconTheme:
+            const IconThemeData(color: _orange), // Seta de voltar laranja
       ),
       body: LayoutBuilder(
         builder: (context, constraints) {
@@ -70,8 +73,8 @@ class PetDetailsPage extends StatelessWidget {
               tag: imageUrl, // Esta tag precisa ser igual à da tela anterior
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(24),
-                child: Image.network(
-                  imageUrl,
+                child: Image(
+                  image: petImageProvider(imageUrl),
                   fit: BoxFit.cover,
                   width: double.infinity,
                   height: imageHeight,
@@ -80,7 +83,8 @@ class PetDetailsPage extends StatelessWidget {
                       width: double.infinity,
                       height: imageHeight,
                       color: _surface,
-                      child: const Icon(Icons.pets, size: 80, color: _textSecondary),
+                      child: const Icon(Icons.pets,
+                          size: 80, color: _textSecondary),
                     );
                   },
                 ),
@@ -93,7 +97,8 @@ class PetDetailsPage extends StatelessWidget {
             children: [
               // Tag Roxo/Vermelho com estilo moderno
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 decoration: BoxDecoration(
                   color: badgeColor.withOpacity(0.15),
                   borderRadius: BorderRadius.circular(10),
@@ -124,7 +129,8 @@ class PetDetailsPage extends StatelessWidget {
 
               Row(
                 children: [
-                  const Icon(Icons.location_on_rounded, color: _orange, size: 20),
+                  const Icon(Icons.location_on_rounded,
+                      color: _orange, size: 20),
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
@@ -157,7 +163,8 @@ class PetDetailsPage extends StatelessWidget {
                 description,
                 style: TextStyle(
                   fontSize: descriptionSize,
-                  color: const Color(0xFFD6D1CA), // Um tom um pouco mais claro que o secondary
+                  color: const Color(
+                      0xFFD6D1CA), // Um tom um pouco mais claro que o secondary
                   height: 1.6,
                 ),
               ),
@@ -174,7 +181,8 @@ class PetDetailsPage extends StatelessWidget {
                   icon: const Icon(Icons.chat_bubble_rounded, size: 20),
                   label: Text(
                     'Entrar em contato',
-                    style: TextStyle(fontSize: buttonFontSize, fontWeight: FontWeight.bold),
+                    style: TextStyle(
+                        fontSize: buttonFontSize, fontWeight: FontWeight.bold),
                   ),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: _whatsappGreen,
@@ -210,7 +218,9 @@ class PetDetailsPage extends StatelessWidget {
                       image,
                       const SizedBox(height: 28),
                       detailsContent,
-                      const SizedBox(height: 40), // Espaço extra no final para não colar na borda
+                      const SizedBox(
+                          height:
+                              40), // Espaço extra no final para não colar na borda
                     ],
                   ),
           );

@@ -1,3 +1,4 @@
+// Importações para UI, modelos e serviços
 import 'package:flutter/material.dart';
 import 'package:pet_save/models/pet_card.dart';
 import 'package:pet_save/pages/login_page.dart';
@@ -7,27 +8,31 @@ import 'package:pet_save/services/postgres_service.dart';
 import 'package:pet_save/utils/image_helpers.dart';
 import 'package:pet_save/widgets/feed_card.dart';
 
+// Definição das cores usadas na página principal
+const _bg = Color(0xFF141210); // Cor de fundo escuro
+const _surface = Color(0xFF1F1C19); // Cor da superfície
+const _card = Color(0xFF272320); // Cor dos cards
+const _orange = Color(0xFFF97316); // Cor laranja para destaques
+const _orangeSoft = Color(0x26F97316); // Laranja com transparidade
+const _textPrimary = Color(0xFFF5F0EA); // Cor do texto principal
+const _textSecondary = Color(0xFF9E9589); // Cor do texto secundário
+const _divider = Color(0xFF3E3933); // Cor das bordas/divisores
 
-const _bg = Color(0xFF141210);
-const _surface = Color(0xFF1F1C19);
-const _card = Color(0xFF272320);
-const _orange = Color(0xFFF97316);
-const _orangeSoft = Color(0x26F97316);
-const _textPrimary = Color(0xFFF5F0EA);
-const _textSecondary = Color(0xFF9E9589);
-const _divider = Color(0xFF3E3933);
-
+// Página principal da aplicação - exibe feed de pets perdidos e resgatados
 class PetSaveHomePage extends StatefulWidget {
-  final String userName;
+  final String userName; // Nome do usuário logado
   const PetSaveHomePage({super.key, required this.userName});
 
   @override
   State<PetSaveHomePage> createState() => _PetSaveHomePageState();
 }
 
+// Estado da página principal
 class _PetSaveHomePageState extends State<PetSaveHomePage> {
+  // Token para forcçar refresh das listas quando um novo pet é cadastrado
   int _refreshToken = 0;
 
+  // Função chamada quando um novo pet é salvo
   void _refreshLists() {
     setState(() => _refreshToken++);
   }
@@ -42,9 +47,12 @@ class _PetSaveHomePageState extends State<PetSaveHomePage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              // Barra superior com logo e opções do usuário
               _TopBar(userName: widget.userName),
+              // Banner principal com chamada para registro de novo pet
               _HeroBanner(onPetSaved: _refreshLists),
               const SizedBox(height: 32),
+              // Título "Perdidos Agora" com ícone
               const Padding(
                 padding: EdgeInsets.symmetric(horizontal: 24),
                 child: _SectionHeader(
@@ -55,8 +63,10 @@ class _PetSaveHomePageState extends State<PetSaveHomePage> {
                 ),
               ),
               const SizedBox(height: 16),
+              // Lista horizontal de pets perdidos
               _UrgentPetsList(key: ValueKey('urgent_$_refreshToken')),
               const SizedBox(height: 32),
+              // Título "Feed Recente" com ýcone
               const Padding(
                 padding: EdgeInsets.symmetric(horizontal: 24),
                 child: _SectionHeader(
@@ -67,6 +77,7 @@ class _PetSaveHomePageState extends State<PetSaveHomePage> {
                 ),
               ),
               const SizedBox(height: 16),
+              // Lista vertical de todos os pets com filtro
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 24),
                 child: _RecentFeedList(key: ValueKey('recent_$_refreshToken')),
@@ -80,11 +91,12 @@ class _PetSaveHomePageState extends State<PetSaveHomePage> {
   }
 }
 
-
+// Barra superior com logo, nome do usuário e botão de logout
 class _TopBar extends StatelessWidget {
   final String userName;
   const _TopBar({required this.userName});
 
+  // Função para realizar logout
   void _logout(BuildContext context) {
     showDialog(
       context: context,
@@ -231,6 +243,7 @@ class _TopBar extends StatelessWidget {
   }
 }
 
+// Banner promocional indicando a missão da aplicação
 class _HeroBanner extends StatelessWidget {
   final VoidCallback onPetSaved;
   const _HeroBanner({required this.onPetSaved});
@@ -361,12 +374,12 @@ class _HeroBanner extends StatelessWidget {
   }
 }
 
-
+// Cabeçalho de seção com Ícone e título customizável
 class _SectionHeader extends StatelessWidget {
-  final String label;
-  final String title;
-  final IconData icon;
-  final Color iconColor;
+  final String label; // Rótulo pequeno (ex: "URGENTE")
+  final String title; // Título principal (ex: "Perdidos Agora")
+  final IconData icon; // Ícone a exibir
+  final Color iconColor; // Cor do Ícone
 
   const _SectionHeader({
     required this.label,
@@ -412,6 +425,7 @@ class _SectionHeader extends StatelessWidget {
   }
 }
 
+// Lista horizontal de pets perdidos (seção urgente)
 class _UrgentPetsList extends StatefulWidget {
   const _UrgentPetsList({super.key});
 
@@ -419,11 +433,12 @@ class _UrgentPetsList extends StatefulWidget {
   State<_UrgentPetsList> createState() => _UrgentPetsListState();
 }
 
+// Estado da lista de pets perdidos
 class _UrgentPetsListState extends State<_UrgentPetsList> {
-  List<PetCard> urgentPets = [];
-  bool isLoading = true;
-  String? errorMessage;
-  final _petService = PostgresService();
+  List<PetCard> urgentPets = []; // Lista de pets perdidos
+  bool isLoading = true; // Indicador de carregamento
+  String? errorMessage; // Mensagem de erro
+  final _petService = PostgresService(); // Serviço de dados
 
   @override
   void initState() {
@@ -493,11 +508,12 @@ class _UrgentPetsListState extends State<_UrgentPetsList> {
   }
 }
 
+// Card individual de pet na lista horizontal
 class _PetCard extends StatelessWidget {
-  final String name;
-  final String local;
-  final String imageUrl;
-  final bool isResgatado;
+  final String name; // Nome do pet
+  final String local; // Localização
+  final String imageUrl; // URL ou data URL da imagem
+  final bool isResgatado; // Status do pet
 
   const _PetCard({
     required this.name,
@@ -645,6 +661,7 @@ class _PetCard extends StatelessWidget {
   }
 }
 
+// Lista vertical de pets recentes com filtro por status
 class _RecentFeedList extends StatefulWidget {
   const _RecentFeedList({super.key});
 
@@ -652,12 +669,13 @@ class _RecentFeedList extends StatefulWidget {
   State<_RecentFeedList> createState() => _RecentFeedListState();
 }
 
+// Estado da lista de feed recente
 class _RecentFeedListState extends State<_RecentFeedList> {
-  List<PetCard> recentPets = [];
-  bool isLoading = true;
-  String? errorMessage;
+  List<PetCard> recentPets = []; // Lista de todos os pets
+  bool isLoading = true; // Indicador de carregamento
+  String? errorMessage; // Mensagem de erro
   int _selectedIndex = 0; // 0 = Perdidos, 1 = Resgatados
-  final _petService = PostgresService();
+  final _petService = PostgresService(); // Serviço de dados
 
   @override
   void initState() {
@@ -702,7 +720,6 @@ class _RecentFeedListState extends State<_RecentFeedList> {
     final perdidos = recentPets.where((pet) => !pet.isResgatado).toList();
     final resgatados = recentPets.where((pet) => pet.isResgatado).toList();
 
-  
     final listToDisplay = _selectedIndex == 0 ? perdidos : resgatados;
 
     return Column(
@@ -782,8 +799,6 @@ class _RecentFeedListState extends State<_RecentFeedList> {
           ),
         ),
         const SizedBox(height: 20),
-
-        
         if (listToDisplay.isEmpty)
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 32),
@@ -810,8 +825,9 @@ class _RecentFeedListState extends State<_RecentFeedList> {
   }
 }
 
+// Linha individual de pet no feed
 class _FeedRow extends StatelessWidget {
-  final PetCard pet;
+  final PetCard pet; // Dados do pet
   const _FeedRow({required this.pet});
 
   @override

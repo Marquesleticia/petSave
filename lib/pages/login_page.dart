@@ -1,7 +1,9 @@
+// Importações para UI e navegação
 import 'package:flutter/material.dart';
 import 'package:pet_save/pages/home_page.dart';
 import 'package:pet_save/pages/register_page.dart';
 
+// Página de login - utiliza StatefulWidget para gerenciar estado do formulário
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
 
@@ -9,12 +11,17 @@ class LoginPage extends StatefulWidget {
   State<LoginPage> createState() => _LoginPageState();
 }
 
+// Estado da página de login
 class _LoginPageState extends State<LoginPage> {
+  // Chave para validação do formulário
   final _formKey = GlobalKey<FormState>();
+  // Controladores dos campos de entrada
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+  // Flag para controlar visibilidade da senha
   bool _obscurePassword = true;
 
+  // Libera recursos dos controladores quando a página é fechada
   @override
   void dispose() {
     _emailController.dispose();
@@ -22,8 +29,10 @@ class _LoginPageState extends State<LoginPage> {
     super.dispose();
   }
 
+  // Valida e realiza o login
   void _login() {
     if (_formKey.currentState?.validate() ?? false) {
+      // Navega para a página inicial com o nome do usuário
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
@@ -34,12 +43,15 @@ class _LoginPageState extends State<LoginPage> {
     }
   }
 
+  // Constrói a interface com layout responsivo
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF5F5F0),
+      // Layout adaptativo para diferentes tamanhos de tela
       body: LayoutBuilder(
         builder: (context, constraints) {
+          // Detecta se a tela é grande (tablet/desktop)
           final isWide = constraints.maxWidth >= 800;
 
           return isWide
@@ -67,9 +79,7 @@ class _LoginPageState extends State<LoginPage> {
   }
 }
 
-// ─────────────────────────────────────────────
-//  Layout WIDE (≥ 800 px) – dois painéis
-// ─────────────────────────────────────────────
+// Layout para telas LARGAS (≥ 800px) - painel duplo com imagem e formulário
 class _WideLayout extends StatelessWidget {
   final GlobalKey<FormState> formKey;
   final TextEditingController emailController;
@@ -179,9 +189,7 @@ class _WideLayout extends StatelessWidget {
   }
 }
 
-// ─────────────────────────────────────────────
-//  Layout NARROW (< 800 px) – coluna única
-// ─────────────────────────────────────────────
+// Layout para telas PEQUENAS (< 800px) - coluna única com banner e formulário
 class _NarrowLayout extends StatelessWidget {
   final GlobalKey<FormState> formKey;
   final TextEditingController emailController;
@@ -252,10 +260,9 @@ class _NarrowLayout extends StatelessWidget {
   }
 }
 
-// ─────────────────────────────────────────────
-//  Logo
-// ─────────────────────────────────────────────
+// Widget da logo PetSave
 class _Logo extends StatelessWidget {
+  // true = logo em branco, false = logo em preto
   final bool light;
   const _Logo({this.light = false});
 
@@ -300,17 +307,17 @@ class _Logo extends StatelessWidget {
   }
 }
 
-// ─────────────────────────────────────────────
-//  Conteúdo do formulário (compartilhado)
-// ─────────────────────────────────────────────
+// Formulário de login - reutilizável em ambos os layouts
 class _FormContent extends StatelessWidget {
+  // Dados do formulário
   final GlobalKey<FormState> formKey;
   final TextEditingController emailController;
   final TextEditingController passwordController;
-  final bool obscurePassword;
-  final VoidCallback onTogglePassword;
-  final VoidCallback onLogin;
-  final bool showLogo;
+  final bool obscurePassword; // Controla visibilidade da senha
+  // Callbacks
+  final VoidCallback onTogglePassword; // Alterna visibilidade
+  final VoidCallback onLogin; // Executa login
+  final bool showLogo; // Mostra logo ou não
 
   const _FormContent({
     required this.formKey,
@@ -414,11 +421,13 @@ class _FormContent extends StatelessWidget {
               keyboardType: TextInputType.emailAddress,
               decoration: const InputDecoration(
                 hintText: 'exemplo@email.com',
-                prefixIcon: Icon(Icons.mail_outline, size: 20, color: Color(0xFF9E9E9E)),
+                prefixIcon: Icon(Icons.mail_outline,
+                    size: 20, color: Color(0xFF9E9E9E)),
               ),
               validator: (value) {
                 if (value == null || value.isEmpty) return 'Informe seu e-mail';
-                if (!RegExp(r'^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value)) {
+                if (!RegExp(r'^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$')
+                    .hasMatch(value)) {
                   return 'E-mail inválido';
                 }
                 return null;
@@ -442,7 +451,8 @@ class _FormContent extends StatelessWidget {
                   onPressed: () {
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
-                        content: Text('Recuperação de senha ainda não implementada.'),
+                        content: Text(
+                            'Recuperação de senha ainda não implementada.'),
                       ),
                     );
                   },
@@ -453,7 +463,10 @@ class _FormContent extends StatelessWidget {
                   ),
                   child: const Text(
                     'Esqueceu-se?',
-                    style: TextStyle(color: orange, fontWeight: FontWeight.w600, fontSize: 14),
+                    style: TextStyle(
+                        color: orange,
+                        fontWeight: FontWeight.w600,
+                        fontSize: 14),
                   ),
                 ),
               ],
@@ -464,10 +477,13 @@ class _FormContent extends StatelessWidget {
               obscureText: obscurePassword,
               decoration: InputDecoration(
                 hintText: '••••••••',
-                prefixIcon: const Icon(Icons.lock_outline, size: 20, color: Color(0xFF9E9E9E)),
+                prefixIcon: const Icon(Icons.lock_outline,
+                    size: 20, color: Color(0xFF9E9E9E)),
                 suffixIcon: IconButton(
                   icon: Icon(
-                    obscurePassword ? Icons.visibility_off_outlined : Icons.visibility_outlined,
+                    obscurePassword
+                        ? Icons.visibility_off_outlined
+                        : Icons.visibility_outlined,
                     size: 20,
                     color: const Color(0xFF9E9E9E),
                   ),
@@ -515,7 +531,8 @@ class _FormContent extends StatelessWidget {
                     children: [
                       const Text(
                         'Ainda não tem conta? ',
-                        style: TextStyle(color: Color(0xFF6B6B6B), fontSize: 14),
+                        style:
+                            TextStyle(color: Color(0xFF6B6B6B), fontSize: 14),
                       ),
                       GestureDetector(
                         onTap: () {

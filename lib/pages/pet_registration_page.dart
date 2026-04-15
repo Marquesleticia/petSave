@@ -1,3 +1,4 @@
+// Importações para manipulação de dados e UI
 import 'dart:convert';
 import 'dart:typed_data';
 
@@ -5,12 +6,15 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:pet_save/services/postgres_service.dart';
 
-const _bg = Color(0xFF141210);
-const _orange = Color(0xFFF97316);
-const _textSecondary = Color(0xFF9E9589);
+// Definição das cores usadas na página
+const _bg = Color(0xFF141210); // Cor de fundo escuro
+const _orange = Color(0xFFF97316); // Cor laranja para destaques
+const _textSecondary = Color(0xFF9E9589); // Cor cinza para textos secundários
 
+// Enum para definir o status do pet (resgatado ou perdido)
 enum _PetStatus { achado, perdido }
 
+// Página de registro de novo pet - utiliza StatefulWidget para gerenciar estado
 class PetRegistrationPage extends StatefulWidget {
   const PetRegistrationPage({super.key});
 
@@ -18,18 +22,27 @@ class PetRegistrationPage extends StatefulWidget {
   State<PetRegistrationPage> createState() => _PetRegistrationPageState();
 }
 
+// Estado da página de registro
 class _PetRegistrationPageState extends State<PetRegistrationPage> {
+  // Chave para validação do formulário
   final _formKey = GlobalKey<FormState>();
+
+  // Controladores dos campos de input
   final _nameController = TextEditingController();
   final _breedController = TextEditingController();
   final _addressController = TextEditingController();
   final _phoneController = TextEditingController();
-  final _petService = PostgresService();
-  _PetStatus _status = _PetStatus.achado;
-  Uint8List? _imageBytes;
-  String? _imageDataUrl;
-  bool _isSaving = false;
 
+  // Serviço para comunicação com o banco de dados
+  final _petService = PostgresService();
+
+  // Variáveis de estado
+  _PetStatus _status = _PetStatus.achado; // Status inicial (resgatado)
+  Uint8List? _imageBytes; // Bytes da imagem selecionada
+  String? _imageDataUrl; // URL em base64 da imagem
+  bool _isSaving = false; // Indica se está salvando os dados
+
+  // Libera recursos dos controladores quando a página é fechada
   @override
   void dispose() {
     _nameController.dispose();
@@ -39,8 +52,10 @@ class _PetRegistrationPageState extends State<PetRegistrationPage> {
     super.dispose();
   }
 
+  // Abre a galeria de imagens e processa a imagem selecionada
   Future<void> _pickImage() async {
     final picker = ImagePicker();
+    // Seleciona imagem com redimensionamento e compressão
     final file = await picker.pickImage(
       source: ImageSource.gallery,
       maxWidth: 1200,
@@ -49,6 +64,7 @@ class _PetRegistrationPageState extends State<PetRegistrationPage> {
     );
     if (file == null) return;
 
+    // Converte imagem para bytes e identifica o tipo MIME
     final bytes = await file.readAsBytes();
     final extension = file.path.toLowerCase();
     final mimeType = extension.endsWith('.png')
@@ -57,14 +73,19 @@ class _PetRegistrationPageState extends State<PetRegistrationPage> {
             ? 'image/webp'
             : 'image/jpeg';
 
+    // Armazena a imagem em memória e cria URL em base64
     setState(() {
       _imageBytes = bytes;
       _imageDataUrl = 'data:$mimeType;base64,${base64Encode(bytes)}';
     });
   }
 
+  // Valida e envia os dados do pet para o banco de dados
   Future<void> _submit() async {
+    // Valida os campos do formulário
     if (!(_formKey.currentState?.validate() ?? false)) return;
+
+    // Verifica se uma imagem foi selecionada
     if (_imageDataUrl == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -78,6 +99,7 @@ class _PetRegistrationPageState extends State<PetRegistrationPage> {
       return;
     }
 
+    // Inicia o envio dos dados
     setState(() => _isSaving = true);
     final error = await _petService.insertPetCard(
       name: _nameController.text,
@@ -89,6 +111,7 @@ class _PetRegistrationPageState extends State<PetRegistrationPage> {
     if (!mounted) return;
     setState(() => _isSaving = false);
 
+    // Exibe mensagem de erro, se houver
     if (error != null) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -102,23 +125,28 @@ class _PetRegistrationPageState extends State<PetRegistrationPage> {
       return;
     }
 
+    // Sucesso: volta para página anterior
     Navigator.of(context).pop(true);
   }
 
+  // Define o estilo dos campos de texto (input decoration)
   InputDecoration _fieldDecoration(String hintText) {
     return InputDecoration(
       hintText: hintText,
       hintStyle: const TextStyle(color: _textSecondary),
       filled: true,
       fillColor: const Color(0xFFF4F4F5),
+      // Borda padrão
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(16),
         borderSide: BorderSide(color: Colors.grey.shade300),
       ),
+      // Borda quando o campo não está ativo
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(16),
         borderSide: BorderSide(color: Colors.grey.shade300),
       ),
+      // Borda quando o campo está em foco (laranja)
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(16),
         borderSide: BorderSide(color: _orange, width: 1.5),
@@ -126,10 +154,12 @@ class _PetRegistrationPageState extends State<PetRegistrationPage> {
     );
   }
 
+  // Constrói a interface da página
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: _bg,
+      // Barra superior com título
       appBar: AppBar(
         title: const Text('Cadastrar Pet'),
         backgroundColor: _bg,
@@ -140,6 +170,7 @@ class _PetRegistrationPageState extends State<PetRegistrationPage> {
       body: SingleChildScrollView(
         physics: const BouncingScrollPhysics(),
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+        // Card branco contendo o formulário
         child: Container(
           decoration: BoxDecoration(
             color: Colors.white,
@@ -159,6 +190,7 @@ class _PetRegistrationPageState extends State<PetRegistrationPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
+                // Título da seção
                 const Text(
                   'Cadastre seu Pet',
                   textAlign: TextAlign.center,
@@ -169,6 +201,7 @@ class _PetRegistrationPageState extends State<PetRegistrationPage> {
                   ),
                 ),
                 const SizedBox(height: 8),
+                // Subtítulo explicativo
                 const Text(
                   'Cadastre seu animal perdido ou resgatado e conecte-se com quem pode ajudar.',
                   textAlign: TextAlign.center,
@@ -179,6 +212,7 @@ class _PetRegistrationPageState extends State<PetRegistrationPage> {
                   ),
                 ),
                 const SizedBox(height: 22),
+                // Seção para seleção de imagem
                 GestureDetector(
                   onTap: _pickImage,
                   child: Container(
@@ -188,6 +222,7 @@ class _PetRegistrationPageState extends State<PetRegistrationPage> {
                       borderRadius: BorderRadius.circular(22),
                       border: Border.all(color: Colors.grey.shade300),
                     ),
+                    // Exibe a imagem se selecionada, senão exibe placeholder
                     child: _imageBytes != null
                         ? ClipRRect(
                             borderRadius: BorderRadius.circular(22),
@@ -215,8 +250,10 @@ class _PetRegistrationPageState extends State<PetRegistrationPage> {
                   ),
                 ),
                 const SizedBox(height: 18),
+                // Botões para selecionar o status do pet (Resgatado ou Perdido)
                 Row(
                   children: [
+                    // Botão "Resgatado" (verde)
                     Expanded(
                       child: GestureDetector(
                         onTap: () =>
@@ -248,6 +285,7 @@ class _PetRegistrationPageState extends State<PetRegistrationPage> {
                       ),
                     ),
                     const SizedBox(width: 12),
+                    // Botão "Perdido" (vermelho)
                     Expanded(
                       child: GestureDetector(
                         onTap: () =>
@@ -281,6 +319,7 @@ class _PetRegistrationPageState extends State<PetRegistrationPage> {
                   ],
                 ),
                 const SizedBox(height: 18),
+                // Campos de entrada do formulário
                 TextFormField(
                   controller: _nameController,
                   textCapitalization: TextCapitalization.words,
@@ -308,6 +347,7 @@ class _PetRegistrationPageState extends State<PetRegistrationPage> {
                       : null,
                 ),
                 const SizedBox(height: 14),
+                // Campo de telefone com validação
                 TextFormField(
                   controller: _phoneController,
                   keyboardType: TextInputType.phone,
@@ -322,6 +362,7 @@ class _PetRegistrationPageState extends State<PetRegistrationPage> {
                   },
                 ),
                 const SizedBox(height: 22),
+                // Botão de envio do formulário
                 SizedBox(
                   height: 52,
                   child: ElevatedButton(
@@ -333,6 +374,7 @@ class _PetRegistrationPageState extends State<PetRegistrationPage> {
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(16)),
                     ),
+                    // Mostra loading enquanto está salvando
                     child: _isSaving
                         ? const SizedBox(
                             width: 22,

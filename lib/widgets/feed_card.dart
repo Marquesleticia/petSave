@@ -1,12 +1,15 @@
+// Importações para UI e utilitários de imagem
 import 'package:flutter/material.dart';
 import 'package:pet_save/utils/image_helpers.dart';
 
+// Widget para exibir um pet individual no feed com imagem, nome e status
 class FeedCard extends StatelessWidget {
-  final String name;
-  final bool isResgatado;
-  final String local;
-  final String timeAgo;
-  final String imageUrl;
+  // Dados do pet
+  final String name; // Nome do pet
+  final bool isResgatado; // Status (resgatado ou perdido)
+  final String local; // Localização onde foi avistado
+  final String timeAgo; // Tempo decorrido desde o registro
+  final String imageUrl; // URL ou data URL da imagem do pet
 
   const FeedCard({
     super.key,
@@ -19,11 +22,13 @@ class FeedCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Define o texto e cor da badge baseado no status
     final tagText = isResgatado ? 'RESGATADO' : 'PERDIDO';
     final tagBackgroundColor = isResgatado ? Colors.purple : Colors.red;
 
     return Container(
       padding: const EdgeInsets.all(12),
+      // Card com borda e sombra
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
@@ -37,15 +42,18 @@ class FeedCard extends StatelessWidget {
       ),
       child: Row(
         children: [
+          // Seção de imagem do pet
           ClipRRect(
             borderRadius: BorderRadius.circular(12),
             child: Container(
               width: 80,
               height: 80,
               color: Colors.grey[200],
+              // Imagem com loading e error handling
               child: Image(
                 image: petImageProvider(imageUrl),
                 fit: BoxFit.cover,
+                // Indicador de carregamento
                 loadingBuilder: (context, child, loadingProgress) {
                   if (loadingProgress == null) return child;
                   return const Center(
@@ -55,6 +63,7 @@ class FeedCard extends StatelessWidget {
                     ),
                   );
                 },
+                // Ícone padrão se a imagem não carregar
                 errorBuilder: (context, error, stackTrace) {
                   return const Icon(Icons.pets, color: Colors.grey, size: 40);
                 },
@@ -62,13 +71,16 @@ class FeedCard extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 16),
+          // Seção de informações do pet
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                // Linha com nome e badge de status
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
+                    // Nome do pet
                     Expanded(
                       child: Text(
                         name,
@@ -81,6 +93,7 @@ class FeedCard extends StatelessWidget {
                         overflow: TextOverflow.ellipsis,
                       ),
                     ),
+                    // Badge com status (Resgatado ou Perdido)
                     Container(
                       padding: const EdgeInsets.symmetric(
                         horizontal: 8,
@@ -102,6 +115,7 @@ class FeedCard extends StatelessWidget {
                   ],
                 ),
                 const SizedBox(height: 8),
+                // Localização com ícone
                 Row(
                   children: [
                     const Icon(
@@ -124,6 +138,7 @@ class FeedCard extends StatelessWidget {
                   ],
                 ),
                 const SizedBox(height: 4),
+                // Tempo decorrido
                 Text(
                   timeAgo,
                   style: const TextStyle(fontSize: 11, color: Colors.grey),

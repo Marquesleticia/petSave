@@ -1,14 +1,17 @@
+// Importações para UI e serviços
 import 'package:flutter/material.dart';
 import 'package:pet_save/pages/home_page.dart';
 import 'package:pet_save/services/postgres_service.dart';
 
-const _bg = Color(0xFF141210);
-const _surface = Color(0xFF1F1C19);
-const _orange = Color(0xFFF97316);
-const _textPrimary = Color(0xFFF5F0EA);
-const _textSecondary = Color(0xFF9E9589);
-const _divider = Color(0xFF3E3933);
+// Definição das cores usadas na página de registro
+const _bg = Color(0xFF141210); // Cor de fundo escuro
+const _surface = Color(0xFF1F1C19); // Cor do card/superficie
+const _orange = Color(0xFFF97316); // Cor laranja para destaques
+const _textPrimary = Color(0xFFF5F0EA); // Cor do texto principal
+const _textSecondary = Color(0xFF9E9589); // Cor do texto secundário
+const _divider = Color(0xFF3E3933); // Cor das bordas/divisores
 
+// Página de registro de novo usuário - utiliza StatefulWidget para gerenciar estado
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
 
@@ -16,16 +19,24 @@ class RegisterPage extends StatefulWidget {
   State<RegisterPage> createState() => _RegisterPageState();
 }
 
+// Estado da página de registro
 class _RegisterPageState extends State<RegisterPage> {
+  // Chave para validação do formulário
   final _formKey = GlobalKey<FormState>();
+
+  // Controladores dos campos de input
   final _nameController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
+
+  // Flag para indicar se está processando o registro
   bool _isLoading = false;
 
+  // Serviço para comunicação com o banco de dados
   final _service = PostgresService();
 
+  // Libera recursos dos controladores quando a página é fechada
   @override
   void dispose() {
     _nameController.dispose();
@@ -35,11 +46,15 @@ class _RegisterPageState extends State<RegisterPage> {
     super.dispose();
   }
 
+  // Valida os dados e registra o novo usuário no banco de dados
   Future<void> _register() async {
+    // Valida os campos do formulário
     if (!(_formKey.currentState?.validate() ?? false)) return;
 
+    // Inicia o carregamento
     setState(() => _isLoading = true);
 
+    // Envia os dados para o serviço de registro
     final error = await _service.registerUser(
       name: _nameController.text,
       email: _emailController.text,
@@ -49,20 +64,21 @@ class _RegisterPageState extends State<RegisterPage> {
     if (!mounted) return;
     setState(() => _isLoading = false);
 
+    // Exibe mensagem de erro, se houver
     if (error != null) {
-     
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(error),
           backgroundColor: const Color(0xFFEF4444),
           behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         ),
       );
       return;
     }
 
-    
+    // Sucesso: navega para a página inicial
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(
@@ -71,6 +87,7 @@ class _RegisterPageState extends State<RegisterPage> {
     );
   }
 
+  // Define o estilo dos campos de texto com ícone
   InputDecoration _field(String label, IconData icon) {
     return InputDecoration(
       labelText: label,
@@ -78,28 +95,35 @@ class _RegisterPageState extends State<RegisterPage> {
       prefixIcon: Icon(icon, color: _textSecondary),
       filled: true,
       fillColor: _bg,
+      // Borda padrão
       border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
           borderSide: const BorderSide(color: _divider)),
+      // Borda quando o campo não está ativo
       enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
           borderSide: const BorderSide(color: _divider)),
+      // Borda quando o campo está em foco (laranja)
       focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
           borderSide: const BorderSide(color: _orange, width: 1.5)),
+      // Borda quando há erro
       errorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
           borderSide: const BorderSide(color: Color(0xFFEF4444))),
+      // Borda quando há erro e está em foco
       focusedErrorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
           borderSide: const BorderSide(color: Color(0xFFEF4444), width: 1.5)),
     );
   }
 
+  // Constrói a interface da página
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: _bg,
+      // Barra superior com título
       appBar: AppBar(
         title: const Text('Cadastre-se',
             style: TextStyle(fontWeight: FontWeight.bold)),
@@ -109,14 +133,17 @@ class _RegisterPageState extends State<RegisterPage> {
         centerTitle: true,
         iconTheme: const IconThemeData(color: _orange),
       ),
+      // Layout responsivo que se adapta a telas largas (tablets/desktop)
       body: LayoutBuilder(builder: (context, constraints) {
         final isWide = constraints.maxWidth >= 800;
         return Center(
           child: SingleChildScrollView(
             physics: const BouncingScrollPhysics(),
             padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
+            // Card contendo o formulário
             child: ConstrainedBox(
-              constraints: BoxConstraints(maxWidth: isWide ? 520 : double.infinity),
+              constraints:
+                  BoxConstraints(maxWidth: isWide ? 520 : double.infinity),
               child: Container(
                 decoration: BoxDecoration(
                   color: _surface,
@@ -129,12 +156,14 @@ class _RegisterPageState extends State<RegisterPage> {
                         offset: const Offset(0, 10))
                   ],
                 ),
-                padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 32),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 28, vertical: 32),
                 child: Form(
                   key: _formKey,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
+                      // Título e subtítulo
                       Text('Crie sua conta',
                           style: TextStyle(
                               fontSize: isWide ? 32 : 28,
@@ -145,22 +174,26 @@ class _RegisterPageState extends State<RegisterPage> {
                       const Text(
                           'Preencha seus dados para entrar na comunidade.',
                           style: TextStyle(
-                              fontSize: 15, color: _textSecondary, height: 1.5)),
+                              fontSize: 15,
+                              color: _textSecondary,
+                              height: 1.5)),
                       const SizedBox(height: 32),
 
-                      // Nome
+                      // Campo de nome
                       TextFormField(
                         controller: _nameController,
                         textCapitalization: TextCapitalization.words,
                         style: const TextStyle(color: _textPrimary),
                         cursorColor: _orange,
-                        decoration: _field('Nome', Icons.person_outline_rounded),
-                        validator: (v) =>
-                            (v == null || v.isEmpty) ? 'Informe seu nome' : null,
+                        decoration:
+                            _field('Nome', Icons.person_outline_rounded),
+                        validator: (v) => (v == null || v.isEmpty)
+                            ? 'Informe seu nome'
+                            : null,
                       ),
                       const SizedBox(height: 16),
 
-                      // E-mail
+                      // Campo de e-mail com validação
                       TextFormField(
                         controller: _emailController,
                         keyboardType: TextInputType.emailAddress,
@@ -168,7 +201,8 @@ class _RegisterPageState extends State<RegisterPage> {
                         cursorColor: _orange,
                         decoration: _field('E-mail', Icons.email_outlined),
                         validator: (v) {
-                          if (v == null || v.isEmpty) return 'Informe seu e-mail';
+                          if (v == null || v.isEmpty)
+                            return 'Informe seu e-mail';
                           if (!RegExp(r'^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$')
                               .hasMatch(v)) return 'E-mail inválido';
                           return null;
@@ -176,7 +210,7 @@ class _RegisterPageState extends State<RegisterPage> {
                       ),
                       const SizedBox(height: 16),
 
-                      // Senha
+                      // Campo de senha
                       TextFormField(
                         controller: _passwordController,
                         obscureText: true,
@@ -184,23 +218,25 @@ class _RegisterPageState extends State<RegisterPage> {
                         cursorColor: _orange,
                         decoration: _field('Senha', Icons.lock_outline_rounded),
                         validator: (v) {
-                          if (v == null || v.isEmpty) return 'Informe sua senha';
+                          if (v == null || v.isEmpty)
+                            return 'Informe sua senha';
                           if (v.length < 6) return 'Mínimo de 6 caracteres';
                           return null;
                         },
                       ),
                       const SizedBox(height: 16),
 
-                      // Confirmar senha
+                      // Campo de confirmação de senha
                       TextFormField(
                         controller: _confirmPasswordController,
                         obscureText: true,
                         style: const TextStyle(color: _textPrimary),
                         cursorColor: _orange,
-                        decoration:
-                            _field('Confirme a senha', Icons.lock_reset_rounded),
+                        decoration: _field(
+                            'Confirme a senha', Icons.lock_reset_rounded),
                         validator: (v) {
-                          if (v == null || v.isEmpty) return 'Confirme sua senha';
+                          if (v == null || v.isEmpty)
+                            return 'Confirme sua senha';
                           if (v != _passwordController.text)
                             return 'As senhas não coincidem';
                           return null;
@@ -208,7 +244,7 @@ class _RegisterPageState extends State<RegisterPage> {
                       ),
                       const SizedBox(height: 28),
 
-                      // Botão cadastrar
+                      // Botão de cadastro
                       SizedBox(
                         height: 54,
                         child: ElevatedButton(
@@ -221,6 +257,7 @@ class _RegisterPageState extends State<RegisterPage> {
                             shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(16)),
                           ),
+                          // Mostra loading enquanto está processando
                           child: _isLoading
                               ? const SizedBox(
                                   width: 22,
@@ -236,7 +273,7 @@ class _RegisterPageState extends State<RegisterPage> {
                       ),
                       const SizedBox(height: 20),
 
-                      // Voltar login
+                      // Link para voltar ao login
                       TextButton(
                         onPressed: () => Navigator.pop(context),
                         style: TextButton.styleFrom(foregroundColor: _orange),

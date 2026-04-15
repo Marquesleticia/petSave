@@ -15,7 +15,7 @@ class PetCard {
     required this.imageUrl,
   });
 
-  // Converter para Map (para salvar no banco)
+  
   Map<String, dynamic> toMap() {
     return {
       'id': id,
@@ -38,7 +38,7 @@ class PetCard {
     );
   }
 
-  // Copiar com algumas mudanças
+
   PetCard copyWith({
     int? id,
     String? name,

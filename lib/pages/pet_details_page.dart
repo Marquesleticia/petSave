@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:pet_save/utils/image_helpers.dart';
 
-// ── Paleta global (Consistência com a Home Page) ──
 const _bg = Color(0xFF141210);
 const _surface = Color(0xFF1F1C19);
 const _orange = Color(0xFFF97316);
@@ -27,7 +26,6 @@ class PetDetailsPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Mantendo a regra de cores das tags
     final badgeColor =
         isResgatado ? const Color(0xFF8B5CF6) : const Color(0xFFEF4444);
     final tagText = isResgatado ? 'RESGATADO' : 'PERDIDO';
@@ -56,7 +54,7 @@ class PetDetailsPage extends StatelessWidget {
           final descriptionSize = isWide ? 17.0 : 15.0;
           final buttonFontSize = isWide ? 16.0 : 15.0;
 
-          // Extraímos a imagem para aplicar o Hero Animation e sombras
+          
           final image = Container(
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(24),
@@ -68,9 +66,8 @@ class PetDetailsPage extends StatelessWidget {
                 ),
               ],
             ),
-            // O Hero faz a imagem transicionar suavemente da tela anterior
             child: Hero(
-              tag: imageUrl, // Esta tag precisa ser igual à da tela anterior
+              tag: imageUrl,
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(24),
                 child: Image(
@@ -95,7 +92,7 @@ class PetDetailsPage extends StatelessWidget {
           final detailsContent = Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Tag Roxo/Vermelho com estilo moderno
+              
               Container(
                 padding:
                     const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
@@ -146,7 +143,7 @@ class PetDetailsPage extends StatelessWidget {
               ),
               const SizedBox(height: 32),
 
-              // Separador sutil
+             
               const Divider(color: Color(0xFF2E2B27), thickness: 1, height: 1),
               const SizedBox(height: 32),
 
@@ -170,7 +167,7 @@ class PetDetailsPage extends StatelessWidget {
               ),
               const SizedBox(height: 40),
 
-              // Botão de Contato
+              
               SizedBox(
                 width: double.infinity,
                 height: 54,
@@ -220,7 +217,7 @@ class PetDetailsPage extends StatelessWidget {
                       detailsContent,
                       const SizedBox(
                           height:
-                              40), // Espaço extra no final para não colar na borda
+                              40), 
                     ],
                   ),
           );

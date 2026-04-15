@@ -7,7 +7,7 @@ import 'package:pet_save/services/postgres_service.dart';
 import 'package:pet_save/utils/image_helpers.dart';
 import 'package:pet_save/widgets/feed_card.dart';
 
-// ── Paleta global ─────────────────────────────────
+
 const _bg = Color(0xFF141210);
 const _surface = Color(0xFF1F1C19);
 const _card = Color(0xFF272320);
@@ -80,7 +80,7 @@ class _PetSaveHomePageState extends State<PetSaveHomePage> {
   }
 }
 
-// ── Top Bar ───────────────────────────────────────
+
 class _TopBar extends StatelessWidget {
   final String userName;
   const _TopBar({required this.userName});
@@ -231,7 +231,6 @@ class _TopBar extends StatelessWidget {
   }
 }
 
-// ── Hero Banner ───────────────────────────────────
 class _HeroBanner extends StatelessWidget {
   final VoidCallback onPetSaved;
   const _HeroBanner({required this.onPetSaved});
@@ -362,7 +361,7 @@ class _HeroBanner extends StatelessWidget {
   }
 }
 
-// ── Section Header ────────────────────────────────
+
 class _SectionHeader extends StatelessWidget {
   final String label;
   final String title;
@@ -413,7 +412,6 @@ class _SectionHeader extends StatelessWidget {
   }
 }
 
-// ── Urgent Pets List ──────────────────────────────
 class _UrgentPetsList extends StatefulWidget {
   const _UrgentPetsList({super.key});
 
@@ -495,7 +493,6 @@ class _UrgentPetsListState extends State<_UrgentPetsList> {
   }
 }
 
-// ── Pet Card ──────────────────────────────────────
 class _PetCard extends StatelessWidget {
   final String name;
   final String local;
@@ -648,7 +645,6 @@ class _PetCard extends StatelessWidget {
   }
 }
 
-// ── Recent Feed List (Com Tabs integradas) ────────
 class _RecentFeedList extends StatefulWidget {
   const _RecentFeedList({super.key});
 
@@ -703,16 +699,14 @@ class _RecentFeedListState extends State<_RecentFeedList> {
       );
     }
 
-    // Filtrando as listas com base no status do pet
     final perdidos = recentPets.where((pet) => !pet.isResgatado).toList();
     final resgatados = recentPets.where((pet) => pet.isResgatado).toList();
 
-    // Lista atual a ser exibida dependendo da aba selecionada
+  
     final listToDisplay = _selectedIndex == 0 ? perdidos : resgatados;
 
     return Column(
       children: [
-        // ── Custom Tab Bar ──
         Container(
           height: 48,
           decoration: BoxDecoration(
@@ -789,7 +783,7 @@ class _RecentFeedListState extends State<_RecentFeedList> {
         ),
         const SizedBox(height: 20),
 
-        // ── Lista Filtrada ──
+        
         if (listToDisplay.isEmpty)
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 32),
@@ -806,7 +800,6 @@ class _RecentFeedListState extends State<_RecentFeedList> {
             children: listToDisplay
                 .take(10)
                 .map((pet) => Padding(
-                      // limitando a 10 no feed para otimização
                       padding: const EdgeInsets.only(bottom: 12),
                       child: _FeedRow(pet: pet),
                     ))
@@ -817,7 +810,6 @@ class _RecentFeedListState extends State<_RecentFeedList> {
   }
 }
 
-// ── Feed Row ──────────────────────────────────────
 class _FeedRow extends StatelessWidget {
   final PetCard pet;
   const _FeedRow({required this.pet});

@@ -170,7 +170,7 @@ class _PetRegistrationPageState extends State<PetRegistrationPage> {
                 ),
                 const SizedBox(height: 8),
                 const Text(
-                  'Cadastre seu pet e garanta ajuda para achar-lo',
+                  'Cadastre seu animal perdido ou resgatado e conecte-se com quem pode ajudar.',
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     color: _textSecondary,
@@ -236,7 +236,7 @@ class _PetRegistrationPageState extends State<PetRegistrationPage> {
                             ),
                           ),
                           child: Text(
-                            'Achado',
+                            'Resgatado',
                             style: TextStyle(
                               color: _status == _PetStatus.achado
                                   ? Colors.white

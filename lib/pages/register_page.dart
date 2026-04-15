@@ -50,7 +50,7 @@ class _RegisterPageState extends State<RegisterPage> {
     setState(() => _isLoading = false);
 
     if (error != null) {
-      // Mostra o erro (ex: e-mail já cadastrado)
+     
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(error),
@@ -62,7 +62,7 @@ class _RegisterPageState extends State<RegisterPage> {
       return;
     }
 
-    // Cadastro OK → vai para home
+    
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(

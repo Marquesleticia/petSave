@@ -23,14 +23,12 @@ class PostgresService {
     );
   }
 
-  // ── Hash de senha (SHA-256) ──────────────────────────────
+  // ── Hash de senha 
   String _hashPassword(String password) {
     final bytes = utf8.encode(password);
     return sha256.convert(bytes).toString();
   }
 
-  // ── Cadastrar novo usuário ───────────────────────────────
-  /// Retorna null se OK, ou uma mensagem de erro se falhar.
   Future<String?> registerUser({
     required String name,
     required String email,
@@ -48,7 +46,7 @@ class PostgresService {
         parameters: [name.trim(), email.trim().toLowerCase(), hash],
       );
 
-      return null; // sucesso
+      return null; 
     } on ServerException catch (e) {
       if (e.message.contains('unique') ||
           e.message.contains('idx_users_email') ||
@@ -61,9 +59,7 @@ class PostgresService {
     }
   }
 
-  // ── Login ────────────────────────────────────────────────
-  /// Retorna o nome do usuário se as credenciais estiverem corretas,
-  /// ou null se e-mail/senha estiverem errados.
+  
   Future<String?> loginUser({
     required String email,
     required String password,
@@ -89,7 +85,6 @@ class PostgresService {
     }
   }
 
-  // ── Pet Cards ────────────────────────────────────────────
   Future<List<PetCard>> getPetCardsByType(bool isResgatado) async {
     final conn = await _openConnection();
     try {
@@ -144,8 +139,6 @@ class PostgresService {
     }
   }
 
-  // ── Inserir novo pet card ────────────────────────────────
-  /// Retorna null se OK, ou uma mensagem de erro se falhar.
   Future<String?> insertPetCard({
     required String name,
     required bool isResgatado,
@@ -163,7 +156,7 @@ class PostgresService {
         parameters: [name, isResgatado ? 1 : 0, local, timeAgo, imageUrl],
       );
 
-      return null; // sucesso
+      return null; 
     } on ServerException catch (e) {
       return 'Erro ao cadastrar pet: ${e.message}';
     } finally {

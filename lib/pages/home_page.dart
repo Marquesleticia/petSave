@@ -3,14 +3,12 @@ import 'package:pet_save/models/pet_card.dart';
 import 'package:pet_save/pages/login_page.dart';
 import 'package:pet_save/pages/pet_details_page.dart';
 import 'package:pet_save/pages/pet_registration_page.dart';
-import 'package:pet_save/services/postgres_service.dart';
 import 'package:pet_save/utils/image_helpers.dart';
-import 'package:pet_save/widgets/feed_card.dart';
+import 'package:pet_save/controllers/home_controller.dart';
 
 // ── Paleta global ─────────────────────────────────
 const _bg = Color(0xFF141210);
 const _surface = Color(0xFF1F1C19);
-const _card = Color(0xFF272320);
 const _orange = Color(0xFFF97316);
 const _orangeSoft = Color(0x26F97316);
 const _textPrimary = Color(0xFFF5F0EA);
@@ -422,75 +420,60 @@ class _UrgentPetsList extends StatefulWidget {
 }
 
 class _UrgentPetsListState extends State<_UrgentPetsList> {
-  List<PetCard> urgentPets = [];
-  bool isLoading = true;
-  String? errorMessage;
-  final _petService = PostgresService();
+  late Future<List<PetCard>> _urgentPetsFuture;
+  final HomeController _controller = HomeController();
 
   @override
   void initState() {
     super.initState();
-    _load();
-  }
-
-  Future<void> _load() async {
-    try {
-      final pets = await _petService.getPetCardsByType(false);
-      if (!mounted) return;
-      setState(() {
-        urgentPets = pets;
-        isLoading = false;
-      });
-    } catch (e) {
-      if (!mounted) return;
-      setState(() {
-        errorMessage = 'Erro: $e';
-        isLoading = false;
-      });
-    }
+    _urgentPetsFuture = _controller.getUrgentPets();
   }
 
   @override
   Widget build(BuildContext context) {
-    if (isLoading) {
-      return const SizedBox(
-          height: 220,
-          child: Center(child: CircularProgressIndicator(color: _orange)));
-    }
-    if (errorMessage != null) {
-      return SizedBox(
-          height: 220,
-          child: Center(
-              child: Text(errorMessage!,
-                  style: const TextStyle(color: Color(0xFFEF4444)))));
-    }
-    if (urgentPets.isEmpty) {
-      return const SizedBox(
-          height: 220,
-          child: Center(
-              child: Text('Nenhum pet perdido registrado.',
-                  style: TextStyle(color: _textSecondary))));
-    }
-    return SizedBox(
-      height: 230,
-      child: ListView.builder(
-        physics: const BouncingScrollPhysics(),
-        scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.symmetric(horizontal: 24),
-        itemCount: urgentPets.length,
-        itemBuilder: (context, index) {
-          final pet = urgentPets[index];
-          return Padding(
-            padding: const EdgeInsets.only(right: 16, bottom: 20),
-            child: _PetCard(
-              name: pet.name,
-              local: pet.local,
-              imageUrl: pet.imageUrl,
-              isResgatado: pet.isResgatado,
-            ),
-          );
-        },
-      ),
+    return FutureBuilder<List<PetCard>>(
+      future: _urgentPetsFuture,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const SizedBox(
+              height: 220,
+              child: Center(child: CircularProgressIndicator(color: _orange)));
+        } else if (snapshot.hasError) {
+          return SizedBox(
+              height: 220,
+              child: Center(
+                  child: Text('Erro: ${snapshot.error}',
+                      style: const TextStyle(color: Color(0xFFEF4444)))));
+        } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+          return const SizedBox(
+              height: 220,
+              child: Center(
+                  child: Text('Nenhum pet perdido registrado.',
+                      style: TextStyle(color: _textSecondary))));
+        }
+        final urgentPets = snapshot.data!;
+        return SizedBox(
+          height: 230,
+          child: ListView.builder(
+            physics: const BouncingScrollPhysics(),
+            scrollDirection: Axis.horizontal,
+            padding: const EdgeInsets.symmetric(horizontal: 24),
+            itemCount: urgentPets.length,
+            itemBuilder: (context, index) {
+              final pet = urgentPets[index];
+              return Padding(
+                padding: const EdgeInsets.only(right: 16, bottom: 20),
+                child: _PetCard(
+                  name: pet.name,
+                  local: pet.local,
+                  imageUrl: pet.imageUrl,
+                  isResgatado: pet.isResgatado,
+                ),
+              );
+            },
+          ),
+        );
+      },
     );
   }
 }
@@ -657,162 +640,147 @@ class _RecentFeedList extends StatefulWidget {
 }
 
 class _RecentFeedListState extends State<_RecentFeedList> {
-  List<PetCard> recentPets = [];
-  bool isLoading = true;
-  String? errorMessage;
+  late Future<List<PetCard>> _recentPetsFuture;
+  final HomeController _controller = HomeController();
   int _selectedIndex = 0; // 0 = Perdidos, 1 = Resgatados
-  final _petService = PostgresService();
 
   @override
   void initState() {
     super.initState();
-    _load();
-  }
-
-  Future<void> _load() async {
-    try {
-      final pets = await _petService.getAllPetCards();
-      if (!mounted) return;
-      setState(() {
-        recentPets = pets;
-        isLoading = false;
-      });
-    } catch (e) {
-      if (!mounted) return;
-      setState(() {
-        errorMessage = 'Erro: $e';
-        isLoading = false;
-      });
-    }
+    _recentPetsFuture = _controller.getAllPets();
   }
 
   @override
   Widget build(BuildContext context) {
-    if (isLoading) {
-      return const Padding(
-        padding: EdgeInsets.all(16),
-        child: Center(child: CircularProgressIndicator(color: _orange)),
-      );
-    }
-    if (errorMessage != null) {
-      return Padding(
-        padding: const EdgeInsets.all(16),
-        child: Center(
-            child: Text(errorMessage!,
-                style: const TextStyle(color: Color(0xFFEF4444)))),
-      );
-    }
+    return FutureBuilder<List<PetCard>>(
+      future: _recentPetsFuture,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Padding(
+            padding: EdgeInsets.all(16),
+            child: Center(child: CircularProgressIndicator(color: _orange)),
+          );
+        } else if (snapshot.hasError) {
+          return Padding(
+            padding: const EdgeInsets.all(16),
+            child: Center(
+                child: Text('Erro: ${snapshot.error}',
+                    style: const TextStyle(color: Color(0xFFEF4444)))),
+          );
+        } else if (!snapshot.hasData) {
+          return const SizedBox();
+        }
+        final recentPets = snapshot.data!;
+        final perdidos = recentPets.where((pet) => !pet.isResgatado).toList();
+        final resgatados = recentPets.where((pet) => pet.isResgatado).toList();
+        final listToDisplay = _selectedIndex == 0 ? perdidos : resgatados;
 
-    // Filtrando as listas com base no status do pet
-    final perdidos = recentPets.where((pet) => !pet.isResgatado).toList();
-    final resgatados = recentPets.where((pet) => pet.isResgatado).toList();
-
-    // Lista atual a ser exibida dependendo da aba selecionada
-    final listToDisplay = _selectedIndex == 0 ? perdidos : resgatados;
-
-    return Column(
-      children: [
-        // ── Custom Tab Bar ──
-        Container(
-          height: 48,
-          decoration: BoxDecoration(
-            color: _surface,
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: _divider),
-          ),
-          child: Row(
-            children: [
-              Expanded(
-                child: GestureDetector(
-                  onTap: () => setState(() => _selectedIndex = 0),
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: _selectedIndex == 0
-                          ? const Color(0xFFEF4444).withOpacity(0.15)
-                          : Colors.transparent,
-                      borderRadius: BorderRadius.circular(15),
-                      border: _selectedIndex == 0
-                          ? Border.all(
-                              color: const Color(0xFFEF4444).withOpacity(0.3))
-                          : null,
-                    ),
-                    child: Center(
-                      child: Text(
-                        'Perdidos (${perdidos.length})',
-                        style: TextStyle(
+        return Column(
+          children: [
+            // ── Custom Tab Bar ──
+            Container(
+              height: 48,
+              decoration: BoxDecoration(
+                color: _surface,
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: _divider),
+              ),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: GestureDetector(
+                      onTap: () => setState(() => _selectedIndex = 0),
+                      child: Container(
+                        decoration: BoxDecoration(
                           color: _selectedIndex == 0
-                              ? const Color(0xFFEF4444)
-                              : _textSecondary,
-                          fontWeight: _selectedIndex == 0
-                              ? FontWeight.bold
-                              : FontWeight.normal,
-                          fontSize: 13,
+                              ? const Color(0xFFEF4444).withOpacity(0.15)
+                              : Colors.transparent,
+                          borderRadius: BorderRadius.circular(15),
+                          border: _selectedIndex == 0
+                              ? Border.all(
+                                  color:
+                                      const Color(0xFFEF4444).withOpacity(0.3))
+                              : null,
+                        ),
+                        child: Center(
+                          child: Text(
+                            'Perdidos (${perdidos.length})',
+                            style: TextStyle(
+                              color: _selectedIndex == 0
+                                  ? const Color(0xFFEF4444)
+                                  : _textSecondary,
+                              fontWeight: _selectedIndex == 0
+                                  ? FontWeight.bold
+                                  : FontWeight.normal,
+                              fontSize: 13,
+                            ),
+                          ),
                         ),
                       ),
                     ),
                   ),
-                ),
-              ),
-              Expanded(
-                child: GestureDetector(
-                  onTap: () => setState(() => _selectedIndex = 1),
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: _selectedIndex == 1
-                          ? const Color(0xFF8B5CF6).withOpacity(0.15)
-                          : Colors.transparent,
-                      borderRadius: BorderRadius.circular(15),
-                      border: _selectedIndex == 1
-                          ? Border.all(
-                              color: const Color(0xFF8B5CF6).withOpacity(0.3))
-                          : null,
-                    ),
-                    child: Center(
-                      child: Text(
-                        'Resgatados (${resgatados.length})',
-                        style: TextStyle(
+                  Expanded(
+                    child: GestureDetector(
+                      onTap: () => setState(() => _selectedIndex = 1),
+                      child: Container(
+                        decoration: BoxDecoration(
                           color: _selectedIndex == 1
-                              ? const Color(0xFF8B5CF6)
-                              : _textSecondary,
-                          fontWeight: _selectedIndex == 1
-                              ? FontWeight.bold
-                              : FontWeight.normal,
-                          fontSize: 13,
+                              ? const Color(0xFF8B5CF6).withOpacity(0.15)
+                              : Colors.transparent,
+                          borderRadius: BorderRadius.circular(15),
+                          border: _selectedIndex == 1
+                              ? Border.all(
+                                  color:
+                                      const Color(0xFF8B5CF6).withOpacity(0.3))
+                              : null,
+                        ),
+                        child: Center(
+                          child: Text(
+                            'Resgatados (${resgatados.length})',
+                            style: TextStyle(
+                              color: _selectedIndex == 1
+                                  ? const Color(0xFF8B5CF6)
+                                  : _textSecondary,
+                              fontWeight: _selectedIndex == 1
+                                  ? FontWeight.bold
+                                  : FontWeight.normal,
+                              fontSize: 13,
+                            ),
+                          ),
                         ),
                       ),
                     ),
                   ),
-                ),
+                ],
               ),
-            ],
-          ),
-        ),
-        const SizedBox(height: 20),
-
-        // ── Lista Filtrada ──
-        if (listToDisplay.isEmpty)
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 32),
-            child: Text(
-              _selectedIndex == 0
-                  ? 'Nenhum pet perdido registrado no momento.'
-                  : 'Nenhum pet resgatado registrado no momento.',
-              style: const TextStyle(color: _textSecondary),
-              textAlign: TextAlign.center,
             ),
-          )
-        else
-          Column(
-            children: listToDisplay
-                .take(10)
-                .map((pet) => Padding(
-                      // limitando a 10 no feed para otimização
-                      padding: const EdgeInsets.only(bottom: 12),
-                      child: _FeedRow(pet: pet),
-                    ))
-                .toList(),
-          ),
-      ],
+            const SizedBox(height: 20),
+
+            // ── Lista Filtrada ──
+            if (listToDisplay.isEmpty)
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 32),
+                child: Text(
+                  _selectedIndex == 0
+                      ? 'Nenhum pet perdido registrado no momento.'
+                      : 'Nenhum pet resgatado registrado no momento.',
+                  style: const TextStyle(color: _textSecondary),
+                  textAlign: TextAlign.center,
+                ),
+              )
+            else
+              Column(
+                children: listToDisplay
+                    .take(10)
+                    .map((pet) => Padding(
+                          padding: const EdgeInsets.only(bottom: 12),
+                          child: _FeedRow(pet: pet),
+                        ))
+                    .toList(),
+              ),
+          ],
+        );
+      },
     );
   }
 }

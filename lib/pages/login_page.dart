@@ -2,6 +2,8 @@
 import 'package:flutter/material.dart';
 import 'package:pet_save/pages/home_page.dart';
 import 'package:pet_save/pages/register_page.dart';
+import 'package:pet_save/controllers/login_controller.dart';
+import 'package:pet_save/models/login_model.dart';
 
 // Página de login - utiliza StatefulWidget para gerenciar estado do formulário
 class LoginPage extends StatefulWidget {
@@ -13,48 +15,64 @@ class LoginPage extends StatefulWidget {
 
 // Estado da página de login
 class _LoginPageState extends State<LoginPage> {
-  // Chave para validação do formulário
   final _formKey = GlobalKey<FormState>();
-  // Controladores dos campos de entrada
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
-  // Flag para controlar visibilidade da senha
   bool _obscurePassword = true;
+  late final LoginController _controller;
 
-  // Libera recursos dos controladores quando a página é fechada
+  @override
+  void initState() {
+    super.initState();
+    _controller = LoginController();
+    _controller.addListener(_onControllerChanged);
+  }
+
   @override
   void dispose() {
+    _controller.removeListener(_onControllerChanged);
+    _controller.dispose();
     _emailController.dispose();
     _passwordController.dispose();
     super.dispose();
   }
 
-  // Valida e realiza o login
-  void _login() {
+  void _onControllerChanged() {
+    if (mounted) setState(() {});
+  }
+
+  Future<void> _login() async {
     if (_formKey.currentState?.validate() ?? false) {
-      // Navega para a página inicial com o nome do usuário
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (context) =>
-              PetSaveHomePage(userName: _emailController.text.split('@').first),
-        ),
+      final model = LoginModel(
+        email: _emailController.text.trim(),
+        password: _passwordController.text,
       );
+      final success = await _controller.login(model);
+      if (success) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => PetSaveHomePage(
+              userName: _emailController.text.split('@').first,
+            ),
+          ),
+        );
+      } else if (_controller.error != null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(_controller.error!)),
+        );
+      }
     }
   }
 
-  // Constrói a interface com layout responsivo
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF5F5F0),
-      // Layout adaptativo para diferentes tamanhos de tela
       body: LayoutBuilder(
         builder: (context, constraints) {
-          // Detecta se a tela é grande (tablet/desktop)
           final isWide = constraints.maxWidth >= 800;
-
-          return isWide
+          final layout = isWide
               ? _WideLayout(
                   formKey: _formKey,
                   emailController: _emailController,
@@ -73,6 +91,18 @@ class _LoginPageState extends State<LoginPage> {
                       setState(() => _obscurePassword = !_obscurePassword),
                   onLogin: _login,
                 );
+          return Stack(
+            children: [
+              layout,
+              if (_controller.loading)
+                Container(
+                  color: Colors.black.withOpacity(0.2),
+                  child: const Center(
+                    child: CircularProgressIndicator(),
+                  ),
+                ),
+            ],
+          );
         },
       ),
     );

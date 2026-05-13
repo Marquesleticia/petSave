@@ -503,13 +503,15 @@ class _PetCard extends StatelessWidget {
         context,
         MaterialPageRoute(
           builder: (_) => PetDetailsPage(
-            name: name,
-            isResgatado: isResgatado,
-            local: local,
-            imageUrl: imageUrl,
-            description: isResgatado
-                ? 'Resgatei este pet próximo a $local. Ele está bem cuidado e aguardando o dono entrar em contato.'
-                : 'Meu pet $name fugiu próximo a $local. Ele é muito dócil, por favor, me ajude a encontrá-lo!',
+            model: PetDetailsModel(
+              name: name,
+              isResgatado: isResgatado,
+              local: local,
+              imageUrl: imageUrl,
+              description: isResgatado
+                  ? 'Resgatei este pet próximo a $local. Ele está bem cuidado e aguardando o dono entrar em contato.'
+                  : 'Meu pet $name fugiu próximo a $local. Ele é muito dócil, por favor, me ajude a encontrá-lo!',
+            ),
           ),
         ),
       ),

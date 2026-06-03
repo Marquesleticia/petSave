@@ -1,0 +1,15 @@
+{
+  "Servers": {
+    "1": {
+      "Name": "PetSave DB",
+      "Group": "PetSave",
+      "Host": "petsave_db",
+      "Port": 5432,
+      "MaintenanceDB": "petsave",
+      "Username": "petsave_user",
+      "Password": "petsave_pass",
+      "SSLMode": "prefer",
+      "SavePassword": true
+    }
+  }
+}

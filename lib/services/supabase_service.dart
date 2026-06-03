@@ -2,14 +2,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'package:pet_save/models/pet_card.dart';
 
-/// Serviço central de acesso ao Supabase.
-///
-/// Utiliza o SDK oficial [supabase_flutter] (RQ02 / RQ03).
-/// Todas as operações passam pelo cliente singleton inicializado em [main.dart].
-///
-/// Convenção de retorno:
-///   • Leituras  → retornam o dado solicitado (lista ou objeto)
-///   • Escritas  → retornam [null] em sucesso ou [String] de erro para a UI
+
 class SupabaseService {
   // Acesso ao cliente singleton do SDK
   SupabaseClient get _client => Supabase.instance.client;
@@ -119,6 +112,8 @@ class SupabaseService {
     required String local,
     required String timeAgo,
     required String imageUrl,
+    double? latitude,   // RQ05 – Geolocalização
+    double? longitude,  // RQ05 – Geolocalização
   }) async {
     try {
       await _client.from(_tablePetCards).insert({
@@ -127,6 +122,8 @@ class SupabaseService {
         'local':       local,
         'timeAgo':     timeAgo,
         'imageUrl':    imageUrl,
+        if (latitude  != null) 'latitude':  latitude,
+        if (longitude != null) 'longitude': longitude,
       });
       return null; // sucesso
     } on PostgrestException catch (e) {

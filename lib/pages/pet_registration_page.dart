@@ -2,8 +2,11 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_map/flutter_map.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:latlong2/latlong.dart';
 
+import 'package:pet_save/services/location_service.dart';
 import 'package:pet_save/services/supabase_service.dart';
 
 // ── Paleta de cores ──────────────────────────────────────────────────────────
@@ -14,10 +17,11 @@ const _textSecondary = Color(0xFF9E9589);
 /// Enum de status do pet no registro.
 enum _PetStatus { achado, perdido }
 
-/// Página de registro de novo pet (RF03 / RF04 / RF07 / RF08).
+/// Página de registro de novo pet (RF03 / RF04 / RF07 / RF08 / RQ05).
 ///
-/// Utiliza a câmera/galeria do dispositivo (RQ04) e persiste
-/// os dados remotamente via [SupabaseService] (RQ02).
+/// Utiliza a câmera/galeria do dispositivo (RQ04), persiste os dados
+/// remotamente via [SupabaseService] (RQ02) e integra geolocalização
+/// via GPS + Nominatim/OSM (RQ05).
 class PetRegistrationPage extends StatefulWidget {
   const PetRegistrationPage({super.key});
 
@@ -26,18 +30,25 @@ class PetRegistrationPage extends StatefulWidget {
 }
 
 class _PetRegistrationPageState extends State<PetRegistrationPage> {
-  final _formKey         = GlobalKey<FormState>();
+  final _formKey           = GlobalKey<FormState>();
   final _nameController    = TextEditingController();
   final _breedController   = TextEditingController();
   final _addressController = TextEditingController();
   final _phoneController   = TextEditingController();
 
-  final _service = SupabaseService();
+  final _service         = SupabaseService();
+  final _locationService = LocationService();
 
   _PetStatus  _status       = _PetStatus.achado;
   Uint8List?  _imageBytes;
   String?     _imageDataUrl;
   bool        _isSaving     = false;
+
+  // ── RQ05 – Estado de geolocalização ─────────────────────────────────────
+  double? _latitude;
+  double? _longitude;
+  bool    _isLocating = false;   // spinner no botão de GPS
+  bool    _showMapPreview = false;
 
   @override
   void dispose() {
@@ -73,7 +84,45 @@ class _PetRegistrationPageState extends State<PetRegistrationPage> {
     });
   }
 
-  /// Valida e envia os dados ao Supabase (RQ02).
+  // ── RQ05 – Obter localização atual via GPS + Nominatim ───────────────────
+
+  /// Captura a posição GPS e faz geocoding reverso para preencher o endereço.
+  Future<void> _useCurrentLocation() async {
+    setState(() => _isLocating = true);
+
+    try {
+      // 1. GPS nativo (geolocator)
+      final position = await _locationService.getCurrentLocation();
+
+      // 2. Geocoding reverso via Nominatim / OSM
+      final result = await _locationService.reverseGeocode(
+        position.latitude,
+        position.longitude,
+      );
+
+      setState(() {
+        _latitude  = result.latitude;
+        _longitude = result.longitude;
+        _addressController.text = result.displayName;
+        _showMapPreview = true;
+      });
+    } on LocationServiceException catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(e.message),
+          backgroundColor: const Color(0xFFEF4444),
+          behavior: SnackBarBehavior.floating,
+          shape: const RoundedRectangleBorder(
+              borderRadius: BorderRadius.all(Radius.circular(12))),
+        ),
+      );
+    } finally {
+      if (mounted) setState(() => _isLocating = false);
+    }
+  }
+
+  /// Valida e envia os dados ao Supabase (RQ02 + RQ05).
   Future<void> _submit() async {
     if (!(_formKey.currentState?.validate() ?? false)) return;
 
@@ -98,6 +147,8 @@ class _PetRegistrationPageState extends State<PetRegistrationPage> {
       local:       _addressController.text.trim(),
       timeAgo:     'Agora',
       imageUrl:    _imageDataUrl!,
+      latitude:    _latitude,    // RQ05
+      longitude:   _longitude,   // RQ05
     );
 
     if (!mounted) return;
@@ -134,6 +185,84 @@ class _PetRegistrationPageState extends State<PetRegistrationPage> {
             borderRadius: BorderRadius.circular(16),
             borderSide: const BorderSide(color: _orange, width: 1.5)),
       );
+
+  // ── RQ05 – Widget de mapa de preview (flutter_map + OSM) ─────────────────
+
+  Widget _buildMapPreview() {
+    if (!_showMapPreview || _latitude == null || _longitude == null) {
+      return const SizedBox.shrink();
+    }
+
+    final center = LatLng(_latitude!, _longitude!);
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const SizedBox(height: 16),
+        Row(
+          children: [
+            const Icon(Icons.map_outlined, color: _orange, size: 18),
+            const SizedBox(width: 6),
+            const Text(
+              'Prévia da localização',
+              style: TextStyle(
+                  fontWeight: FontWeight.w700,
+                  color: _bg,
+                  fontSize: 14),
+            ),
+            const Spacer(),
+            GestureDetector(
+              onTap: () => setState(() {
+                _showMapPreview = false;
+                _latitude  = null;
+                _longitude = null;
+              }),
+              child: const Icon(Icons.close, size: 18, color: _textSecondary),
+            ),
+          ],
+        ),
+        const SizedBox(height: 10),
+        ClipRRect(
+          borderRadius: BorderRadius.circular(16),
+          child: SizedBox(
+            height: 200,
+            child: FlutterMap(
+              options: MapOptions(
+                initialCenter: center,
+                initialZoom: 15,
+                interactionOptions: const InteractionOptions(
+                  flags: InteractiveFlag.none, // somente leitura no preview
+                ),
+              ),
+              children: [
+                // Tiles OpenStreetMap (gratuito, sem chave de API)
+                TileLayer(
+                  urlTemplate:
+                      'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                  userAgentPackageName: 'com.example.pet_save',
+                ),
+                // Marcador da posição
+                MarkerLayer(
+                  markers: [
+                    Marker(
+                      point: center,
+                      width: 40,
+                      height: 40,
+                      child: const Icon(
+                        Icons.location_pin,
+                        color: _orange,
+                        size: 40,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -184,6 +313,7 @@ class _PetRegistrationPageState extends State<PetRegistrationPage> {
                       color: _textSecondary, fontSize: 14, height: 1.5),
                 ),
                 const SizedBox(height: 22),
+
                 // Seleção de imagem (RQ04 – recurso nativo do dispositivo)
                 GestureDetector(
                   onTap: _pickImage,
@@ -221,6 +351,7 @@ class _PetRegistrationPageState extends State<PetRegistrationPage> {
                   ),
                 ),
                 const SizedBox(height: 18),
+
                 // Seletor de status (RF07 / RF08)
                 Row(
                   children: [
@@ -288,6 +419,8 @@ class _PetRegistrationPageState extends State<PetRegistrationPage> {
                   ],
                 ),
                 const SizedBox(height: 18),
+
+                // Campos do formulário
                 TextFormField(
                   controller: _nameController,
                   textCapitalization: TextCapitalization.words,
@@ -306,6 +439,8 @@ class _PetRegistrationPageState extends State<PetRegistrationPage> {
                       : null,
                 ),
                 const SizedBox(height: 14),
+
+                // ── RQ05 – Campo endereço + botão GPS ─────────────────────
                 TextFormField(
                   controller: _addressController,
                   textCapitalization: TextCapitalization.words,
@@ -314,6 +449,43 @@ class _PetRegistrationPageState extends State<PetRegistrationPage> {
                       ? 'Informe o endereço'
                       : null,
                 ),
+                const SizedBox(height: 10),
+
+                // Botão "Usar minha localização" (RQ05)
+                SizedBox(
+                  height: 44,
+                  child: OutlinedButton.icon(
+                    onPressed: _isLocating ? null : _useCurrentLocation,
+                    icon: _isLocating
+                        ? const SizedBox(
+                            width: 16,
+                            height: 16,
+                            child: CircularProgressIndicator(
+                                strokeWidth: 2, color: _orange),
+                          )
+                        : const Icon(Icons.my_location_rounded,
+                            size: 18, color: _orange),
+                    label: Text(
+                      _isLocating
+                          ? 'Obtendo localização...'
+                          : 'Usar minha localização',
+                      style: const TextStyle(
+                          color: _orange, fontWeight: FontWeight.w600),
+                    ),
+                    style: OutlinedButton.styleFrom(
+                      side: BorderSide(
+                          color: _isLocating
+                              ? _orange.withOpacity(0.4)
+                              : _orange),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(14)),
+                    ),
+                  ),
+                ),
+
+                // Mapa de preview da localização (RQ05)
+                _buildMapPreview(),
+
                 const SizedBox(height: 14),
                 TextFormField(
                   controller: _phoneController,
@@ -328,6 +500,7 @@ class _PetRegistrationPageState extends State<PetRegistrationPage> {
                   },
                 ),
                 const SizedBox(height: 22),
+
                 SizedBox(
                   height: 52,
                   child: ElevatedButton(

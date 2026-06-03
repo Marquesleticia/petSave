@@ -5,6 +5,9 @@ class PetDetailsModel {
   final String local;
   final String imageUrl;
   final String description;
+  // RQ05 – Geolocalização
+  final double? latitude;
+  final double? longitude;
 
   const PetDetailsModel({
     required this.name,
@@ -12,5 +15,7 @@ class PetDetailsModel {
     required this.local,
     required this.imageUrl,
     required this.description,
+    this.latitude,
+    this.longitude,
   });
 }

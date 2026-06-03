@@ -10,6 +10,9 @@ class PetCard {
   final String local;
   final String timeAgo;
   final String imageUrl;
+  // RQ05 – Geolocalização (Nominatim / OSM)
+  final double? latitude;
+  final double? longitude;
 
   const PetCard({
     this.id,
@@ -18,6 +21,8 @@ class PetCard {
     required this.local,
     required this.timeAgo,
     required this.imageUrl,
+    this.latitude,
+    this.longitude,
   });
 
   /// Deserializa a resposta JSON do Supabase.
@@ -32,6 +37,8 @@ class PetCard {
       local:       map['local'] as String,
       timeAgo:     map['timeAgo'] as String? ?? '',
       imageUrl:    map['imageUrl'] as String? ?? '',
+      latitude:    (map['latitude'] as num?)?.toDouble(),
+      longitude:   (map['longitude'] as num?)?.toDouble(),
     );
   }
 
@@ -43,6 +50,8 @@ class PetCard {
         'local':       local,
         'timeAgo':     timeAgo,
         'imageUrl':    imageUrl,
+        if (latitude  != null) 'latitude':  latitude,
+        if (longitude != null) 'longitude': longitude,
       };
 
   PetCard copyWith({
@@ -52,6 +61,8 @@ class PetCard {
     String? local,
     String? timeAgo,
     String? imageUrl,
+    double? latitude,
+    double? longitude,
   }) =>
       PetCard(
         id:          id          ?? this.id,
@@ -60,5 +71,7 @@ class PetCard {
         local:       local       ?? this.local,
         timeAgo:     timeAgo     ?? this.timeAgo,
         imageUrl:    imageUrl    ?? this.imageUrl,
+        latitude:    latitude    ?? this.latitude,
+        longitude:   longitude   ?? this.longitude,
       );
 }

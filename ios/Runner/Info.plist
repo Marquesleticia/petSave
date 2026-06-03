@@ -45,5 +45,10 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+	<!-- RQ05 – Permissões de geolocalização (geolocator) -->
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>O PetSave usa sua localização para registrar onde o animal foi visto ou encontrado.</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>O PetSave usa sua localização para registrar onde o animal foi visto ou encontrado.</string>
 </dict>
 </plist>

@@ -515,6 +515,8 @@ class _PetCard extends StatelessWidget {
               description: pet.isResgatado
                   ? 'Resgatei este pet próximo a ${pet.local}. Ele está bem cuidado e aguardando o dono entrar em contato.'
                   : 'Meu pet ${pet.name} fugiu próximo a ${pet.local}. Ele é muito dócil, por favor, me ajude a encontrá-lo!',
+              latitude:  pet.latitude,   // RQ05 – Geolocalização
+              longitude: pet.longitude,  // RQ05 – Geolocalização
             ),
           ),
         ),

@@ -21,6 +21,12 @@ dependencies:
   # Recurso nativo – câmera/galeria (RQ04)
   image_picker: ^0.8.7+5
 
+  # Geolocalização e mapas – API externa OSM/Nominatim (RQ05)
+  flutter_map: ^6.1.0
+  latlong2: ^0.9.0
+  geolocator: ^11.0.0
+  http: ^1.2.1
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
